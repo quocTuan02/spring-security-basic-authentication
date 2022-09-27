@@ -1,0 +1,44 @@
+<th:block th:fragment="full-header">
+    <header>
+        <div class="header-top">
+            <nav class="navbar container py-2">
+            </nav>
+        </div>
+        <div class="home">
+            <div class="header">
+                <div class="header-nav">
+                    <div class="container">
+                        <div class="header-nav-content">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+</th:block>
+
+<th:block th:fragment="short-header">
+    <header style="min-height: 63px">
+        <div class="container-fluid bg-light"
+             style="position: fixed;
+                box-shadow: rgb(0 0 0 / 12%) 0 1px 4px 1px;
+                top: 0;
+                z-index: 1040;">
+            <nav class="navbar py-2 d-flex flex-row-reverse m-0">
+                <div class="logo-wrap flex-row-reverse d-flex" style="width: 300px;">
+                    <a class="navbar-brand text-right" href="/">
+                        <span class="text-white h3 ">LOGO</span>
+                    </a>
+                </div>
+                <div class="nav-actions">
+                    <a class="nav-item" href="/">
+                        <div class="nav-icon">
+                            <i class="fas fa-chevron-left h3 m-0" style="color: #fe0000;"></i>
+                        </div>
+                    </a>
+                </div>
+            </nav>
+        </div>
+
+    </header>
+</th:block>

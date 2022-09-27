@@ -1,0 +1,36 @@
+.list-item li .delete-item {
+    pointer-events: none;
+    color: #00000080;
+    opacity: 0;
+    font-size: 1.5rem;
+    padding: 0 0 0 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.list-item li:hover .delete-item ,
+.list-item li:hover .btn-show-modal-add-specification
+{
+    opacity: 1;
+    pointer-events: initial;
+    cursor: pointer;
+}
+
+.list-item li .delete-item:hover {
+    color: red;
+}
+
+#modal-choose-category .category-list .category-item .item-action {
+    pointer-events: none;
+    display: none !important;
+}
+
+#modal-choose-category .modal-dialog {
+    max-width: 1300px;
+}
+
+.btn-show-modal-add-specification {
+    opacity: 0;
+    color: #28a745;
+}

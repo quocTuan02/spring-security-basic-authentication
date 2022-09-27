@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/layout/layout :: main-fragment(
+                                                ~{:: title},
+                                                'short-header',
+                                                'short-footer',
+                                                ~{:: #css-resources},
+                                                ~{:: #js-resources},
+                                                ~{:: #main-content}
+                                               )}">
+
+<head>
+    <title>Đăng nhập</title>
+    <th:block id="css-resources">
+        <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}"/>
+        <link rel="stylesheet" type="text/css" th:href="@{/css/components/header.css}"/>
+        <style>
+            .card {
+                border: none;
+                -webkit-box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 15%);
+                box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 15%);
+            }
+
+            body {
+                background: rgb(244, 246, 249);
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+<main id="main-content">
+    <div class="container-login container-fluid my-5">
+        <div class="d-flex justify-content-center pt-5">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                <div class="card px-5 py-3">
+                    <div class="card-title">Đăng Nhập</div>
+                    <div class="card-body">
+                        <form id="form-login">
+                            <span class="invalid-feedback" id="invalid-feedback__message--login"></span>
+                            <div class="form-group">
+                                <input name="email"
+                                       type="email"
+                                       class="form-control"
+                                       required
+                                       autocomplete="autocomplete"
+                                       placeholder="Email"
+                                       aria-label="Email">
+                                <span class="invalid-feedback" id="invalid-feedback__email"></span>
+                            </div>
+                            <div class="form-group">
+                                <input name="password"
+                                       type="password"
+                                       class="form-control"
+                                       required
+                                       autocomplete="autocomplete"
+                                       placeholder="Mật khẩu"
+                                       aria-label="Mật khẩu">
+                                <span class="invalid-feedback" id="invalid-feedback__password"></span>
+                            </div>
+                            <button type="button" class="btn btn-primary red-btn sign-in-btn btn-block mt-4"
+                                    th:form="form-login">Đăng nhập
+                            </button>
+                            <div class="text-center mt-2">
+                                <a th:href="@{/forgot-password}">
+                                    <span> Quên mật khẩu? </span>
+                                </a>
+                            </div>
+                            <div class="text-center">
+                                <div class="border-top pt-4 mt-4">
+                                    <a class="btn btn-warning btn-block" th:href="@{/register}">
+                                        Tạo mới tài khoản
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block id="js-resources">
+    <script>
+        $(document).on("click", ".sign-in-btn", function (event) {
+            event.preventDefault();
+            const form = $(this.form)
+            $.ajax({
+                url: '/api/login',
+                type: 'POST',
+                data: JSON.stringify(getFormData(form)),
+                processData: false,
+                contentType: "application/json; charset=utf-8",
+                success: function (res) {
+                    let data = res.data
+                    toastr.success(res.message);
+                    setTimeout(function () {
+                        let url = new URL(window.location.href);
+                        let redirectURI = url.searchParams.get("redirectURI");
+                        if (redirectURI) {
+                            window.location = redirectURI
+                            return;
+                        }
+                        window.location = "/account"
+                    }, 500)
+                },
+                error: function (error) {
+                    let data = error.responseJSON
+                    if (data.errors instanceof Array) {
+                        toastr.error(data.message);
+                        $('.invalid-feedback').hide()
+                        $.map(data.errors, function (e) {
+                            let obj = $(`#invalid-feedback__${e.field}`)
+                            obj.show();
+                            obj.text(e.message)
+                        })
+                    } else {
+                        if (data.errors === "BAD_REQUEST") {
+                            toastr.error(data.message);
+                            $('.invalid-feedback').hide()
+                            let obj = $(`#invalid-feedback__message--login`)
+                            obj.show();
+                            obj.text(data.message)
+                        } else {
+                            toastr.error(data.message);
+                        }
+                    }
+
+                }
+            });
+        })
+    </script>
+</th:block>
+</body>
+</html>

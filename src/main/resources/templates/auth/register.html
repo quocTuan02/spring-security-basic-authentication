@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/layout/layout :: main-fragment(
+                                                ~{:: title},
+                                                'short-header',
+                                                'short-footer',
+                                                ~{:: #css-resources},
+                                                ~{:: #js-resources},
+                                                ~{:: #main-content}
+                                               )}">
+
+<head>
+    <title>Đăng nhập</title>
+    <th:block id="css-resources">
+        <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}"/>
+        <link rel="stylesheet" type="text/css" th:href="@{/css/components/header.css}"/>
+        <style>
+            .card {
+                border: none;
+                -webkit-box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 15%);
+                box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 15%);
+            }
+
+            body {
+                background: rgb(244, 246, 249);
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+<main id="main-content" style="background: rgb(244, 246, 249);">
+    <div class="container-login container-fluid my-5">
+        <div class="d-flex justify-content-center pt-5">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                <div class="card px-5 py-3">
+                    <div class="card-title">Đăng ký tài khoản</div>
+                    <div class="card-body">
+                        <form id="form-register">
+                            <div class="form-group">
+                                <label class="required-label" for="full-name--new">Họ tên</label>
+                                <input name="fullName" required
+                                       type="text" minlength="2" maxlength="255"
+                                       placeholder="Họ tên"
+                                       class="form-control" id="full-name--new">
+                                <span class="invalid-feedback" id="invalid-feedback__fullName--new"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="required-label" for="email--new">Email</label>
+                                <input name="email" required type="email" placeholder="Email" class="form-control"
+                                       id="email--new">
+                                <span class="invalid-feedback" id="invalid-feedback__email--new"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="" for="phone--new">SĐT</label>
+                                <input name="phone" required
+                                       type="tel" pattern="0[1-9][0-9]{8}"
+                                       placeholder="Số điện thoại"
+                                       class="form-control" id="phone--new">
+                                <span class="invalid-feedback" id="invalid-feedback__phone--new"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="" for="address--new">Địa chỉ</label>
+                                <input name="address" minlength="5" maxlength="511" type="text"
+                                       placeholder="Địa chỉ"
+                                       class="form-control" id="address--new">
+                                <span class="invalid-feedback" id="invalid-feedback__address--new"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="required-label" for="username--new">Tên tài khoản</label>
+                                <input name="username" required type="text" placeholder="Username" class="form-control"
+                                       id="username--new">
+                                <span class="invalid-feedback" id="invalid-feedback__username--new"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="required-label" for="password--new">Mật khẩu</label>
+                                <input name="password"
+                                       pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–{}:;,?/*~$^+=<>.]).{6,32}$"
+                                       required
+                                       type="password"
+                                       placeholder="Mật khẩu"
+                                       class="form-control" id="password--new">
+                                <span class="invalid-feedback" id="invalid-feedback__password--new"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="required-label" for="confirmPassword--new">Xác nhận mật khẩu</label>
+                                <input name="confirmPassword"
+                                       pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–{}:;,?/*~$^+=<>.]).{6,32}$"
+                                       required
+                                       type="password"
+                                       placeholder="Xác nhận mật khẩu"
+                                       class="form-control" id="confirmPassword--new">
+                                <span class="invalid-feedback" id="invalid-feedback__confirmPassword--new"></span>
+                            </div>
+
+                            <button type="button" class="btn btn-primary red-btn btn-block sign-up-btn my-4"
+                                    th:form="form-register">
+                                Đăng kí
+                            </button>
+                            <div class="text-center">
+                                <div class="border-top pt-4 mt-4">
+                                    <a class="btn btn-warning btn-block" th:href="@{/login}">
+                                        Bạn đã có tài khoản
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block id="js-resources">
+    <script>
+        $(document).on("click", ".sign-up-btn", function (event) {
+            event.preventDefault();
+            const form = $(this.form)
+            $.ajax({
+                url: '/api/register',
+                type: 'POST',
+                data: JSON.stringify(getFormData(form)),
+                processData: false,
+                contentType: "application/json; charset=utf-8",
+                success: function (res) {
+                    toastr.success(res.message);
+                    setTimeout(function () {
+                        window.location = "/account"
+                    }, 500)
+                },
+                error: function (error) {
+                    let data = error.responseJSON
+                    if (data.errors instanceof Array) {
+                        toastr.error(data.message);
+                        $('.invalid-feedback').hide()
+                        $.map(data.errors, function (e) {
+                            let obj = $(`#invalid-feedback__${e.field}--new`)
+                            obj.show();
+                            obj.text(e.message)
+                        })
+                    } else {
+                        toastr.error(data.message);
+                    }
+
+                }
+            });
+        })
+    </script>
+</th:block>
+</body>
+</html>

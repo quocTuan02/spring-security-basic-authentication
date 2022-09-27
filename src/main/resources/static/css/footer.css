@@ -1,0 +1,242 @@
+.footer {
+    margin-top: 30px;
+}
+
+.footer-child:first-child {
+    background-color: #333;
+}
+
+.footer-child:last-child {
+    border-top: 1px solid #e7e7e7;
+}
+
+.footer-child:last-child p {
+    text-align: center;
+    color: #3f3f3f;
+    font-size: 12px;
+    line-height: 137.99%;
+    margin: 15px auto 10px auto;
+}
+
+.footer-newsletter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 52px;
+}
+
+.footer-newsletter-item {
+    padding-left: 0;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    width: 100%;
+}
+
+.footer-newsletter-item .social-item {
+    list-style: none;
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #fff;
+    margin: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer-newsletter-item .social-item i {
+    font-size: 16px;
+    color: #fff;
+}
+
+.footer-newsletter-item p {
+    font-size: 13px;
+    color: #fff;
+    margin: 0;
+}
+
+.footer-newsletter-item .form-submit {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.footer-newsletter-item label {
+    margin: 0;
+    display: block;
+    width: 100%;
+}
+
+.footer-newsletter-item .input-email {
+    height: 32px;
+    width: 100%;
+    padding-left: 10px;
+    font-size: 14px;
+}
+
+.footer-newsletter-item .input-email::-moz-placeholder {
+    font-size: 14px;
+}
+
+.footer-newsletter-item .input-email:-ms-input-placeholder {
+    font-size: 14px;
+}
+
+.footer-newsletter-item .input-email::placeholder {
+    font-size: 14px;
+}
+
+.footer-newsletter-item .input-email:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.footer-newsletter-item .input-email:focus::-moz-placeholder {
+    color: transparent;
+}
+
+.footer-newsletter-item .input-email:focus:-ms-input-placeholder {
+    color: transparent;
+}
+
+.footer-newsletter-item .input-email:focus::placeholder {
+    color: transparent;
+}
+
+.footer-newsletter-item .submit-email {
+    height: auto;
+    padding: 6px 8px;
+    font-size: 14px;
+    line-height: 20px;
+    background: #41b948;
+    border-radius: 4px;
+    border: none;
+    color: #fff;
+    flex: 1;
+    cursor: pointer;
+    transition: all 0.5s ease;
+    -webkit-transition: all 0.5s ease;
+    min-width: 87px;
+    max-width: 87px;
+    margin-left: 5px;
+}
+
+.footer-link {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 15px;
+}
+
+.footer-link-title {
+    font-size: 14px;
+    line-height: 24px;
+    font-weight: bold;
+    color: #3f3f3f;
+    margin: 0 0 12px 0;
+    display: block;
+}
+
+.footer-link ul {
+    padding: 0;
+}
+
+.footer-link ul li {
+    list-style: none;
+    font-weight: 400;
+    line-height: 14px;
+    font-size: 14px;
+    color: #3f3f3f;
+    display: block;
+    margin: 0 0 12px 0;
+    cursor: pointer;
+}
+
+.footer-link ul li:hover {
+    color: #ed3324;
+}
+
+.footer-link ul li a {
+    color: #ed3324;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.support-message {
+    padding: 15px 0;
+    font-size: 14px;
+    text-align: center;
+    color: #3f3f3f;
+    background: #e3e7e8;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    left: 0;
+    right: 0;
+    z-index: 2;
+}
+
+@media screen and (max-width: 1199.98px) {
+    .footer-newsletter-item:first-child {
+        width: 15%;
+    }
+
+    .footer-newsletter-item:nth-child(2) {
+        width: 45%;
+    }
+
+    .footer-newsletter-item:last-child {
+        width: 35%;
+    }
+}
+
+@media screen and (max-width: 991.98px) {
+    .footer-newsletter {
+        height: 100%;
+        align-items: flex-start;
+        padding: 15px 0;
+        display: block;
+    }
+
+    .footer-newsletter-item:not(:last-child) {
+        margin-bottom: 15px;
+    }
+
+    .footer-newsletter-item:first-child {
+        width: 50%;
+        float: left;
+    }
+
+    .footer-newsletter-item:nth-child(2) {
+        width: 50%;
+        float: right;
+    }
+
+    .footer-newsletter-item:last-child {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 991.98px) {
+    .footer-newsletter-item:first-child {
+        width: 30%;
+    }
+
+    .footer-newsletter-item:nth-child(2) {
+        width: 69%;
+        align-items: flex-start;
+    }
+}
+
+@media screen and (max-width: 574.98px) {
+    .footer .footer-newsletter {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .footer .footer-newsletter-item {
+        width: 100%;
+    }
+}
+

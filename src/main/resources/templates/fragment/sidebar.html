@@ -1,0 +1,51 @@
+<th:block th:fragment="sidebar">
+    <div class="main-sidebar shadow-left">
+        <div class="brand-link border-bottom py-3 mt-3">
+            <div class="d-flex align-items-center" style="max-width: 250px">
+                <div class="avatar mx-3">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user_full-name">
+                    <span class="font-weight-bold h4" th:text="${_user.fullName}"></span>
+                </div>
+            </div>
+        </div>
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Sidebar Menu -->
+            <nav class="mt-2">
+                <ul class="nav flex-column">
+                    <li class="nav-item has-treeview">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-star"></i>
+                            <div class="nav-text">
+                                <span>Tài khoản</span>
+                                <!-- <i class="fas fa-angle-left right"></i>-->
+                            </div>
+                        </a>
+                        <ul class="nav nav-treeview p">
+                            <li class="nav-item">
+                                <a th:href="@{/account/profile}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <span class="nav-text">Cập mhật thông tin</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a th:href="@{/account/change-password}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <span class="nav-text">Thay đổi mật khẩu</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item has-treeview">
+                        <a th:href="@{/api/logout}" class="nav-link">
+                            <i class="nav-icon  fas fa-sign-out-alt"></i>
+                            <span class="nav-text">Đăng xuất</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</th:block>
