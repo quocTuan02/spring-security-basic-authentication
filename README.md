@@ -1,5 +1,3 @@
-### MT STORE WEBSITE
-Trang thương mại điện tử bán đồ điện tử
 
 ### Chạy app bằng maven
 
