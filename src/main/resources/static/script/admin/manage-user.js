@@ -116,12 +116,12 @@ $(document).ready(function () {
                         <div class="form-group">
                             <label class="required-label min-w-20 mr-1">Roles</label>
                             <div class="form-check form-check-inline">
-                                <input name="roles[]" value="ADMIN" required ${data.data.roles.includes("ADMIN") ? "checked" : ""}
+                                <input name="roles[]" value="ADMIN" required ${data.data.roles?.includes("ADMIN") ? "checked" : ""}
                                        id="roles-admin--edit" class="form-check-input" type="checkbox">
                                 <label class="form-check-label" for="roles-admin--edit">ADMIN</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input name="roles[]" value="USER" required ${data.data.roles.includes("USER") ? "checked" : ""}
+                                <input name="roles[]" value="USER" required ${data.data.roles?.includes("USER") ? "checked" : ""}
                                        id="roles-user--edit" class="form-check-input" type="checkbox">
                                 <label class="form-check-label" for="roles-user--edit">USER</label>
                             </div>

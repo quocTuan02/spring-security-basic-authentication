@@ -18,7 +18,7 @@ public class LoginForm {
       notes = "not-null",
       required = true
   )
-  private String email;
+  private String username;
 
   @NotNull(message = "not-null")
   @NotEmpty(message = "not-null")

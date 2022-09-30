@@ -68,6 +68,6 @@
 .content-wrap {
     background: #f4f6f9;
     margin-left: 250px;
-    min-height: calc(100vh - 64px);
+    min-height: calc(100vh - 100px);
     padding:1rem;
 }

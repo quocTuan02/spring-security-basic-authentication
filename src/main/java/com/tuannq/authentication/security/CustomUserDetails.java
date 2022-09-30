@@ -3,6 +3,7 @@ package com.tuannq.authentication.security;
 import com.tuannq.authentication.entity.Users;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,9 +16,9 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         ArrayList<GrantedAuthority> roles = new ArrayList<>();
-//        for (String role : user.getRoles()) {
-//            roles.add(new SimpleGrantedAuthority("ROLE_" + role));
-//        }
+        for (String role : user.getRoles()) {
+            roles.add(new SimpleGrantedAuthority("ROLE_" + role));
+        }
 
         return roles;
     }

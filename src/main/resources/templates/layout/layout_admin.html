@@ -46,7 +46,17 @@
                     <i class="fas fa-user"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-md dropdown-menu-right">
-
+                    <a th:href="@{/account/profile}" class="dropdown-item">
+                        <div class="media">
+                            Profile
+                        </div>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a th:href="@{/api/logout}" class="dropdown-item">
+                        <div class="media">
+                            Đăng xuất
+                        </div>
+                    </a>
                 </div>
             </li>
         </ul>
@@ -56,14 +66,41 @@
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
         <!-- Brand Logo -->
         <a th:href="@{/admin}" class="brand-link">
-            <!--                    <img th:src="@{/image/short-logo.png}" alt="Logo" class="brand-image">-->
-            <span class="brand-text font-weight-light">LOGO</span>
+            <span class="brand-text font-weight-light">TuanNQ - AT150659</span>
         </a>
 
         <!-- Sidebar -->
         <div class="sidebar">
             <!-- Sidebar Menu -->
             <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+                    data-accordion="false">
+                    <li class="nav-item has-treeview">
+                        <a th:href="@{/admin}" class="nav-link">
+                            <i class="nav-icon fas fa-chart-line"></i>
+                            <p>
+                                Dashboard
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item has-treeview">
+                        <a th:href="@{/admin/users}" class="nav-link">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>
+                                Quản lý user
+                                <i class="fas fa-angle-left right"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a th:href="@{/admin/users}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Danh sách user</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
             </nav>
         </div>
     </aside>

@@ -4,13 +4,17 @@ import com.tuannq.authentication.entity.OTP;
 import com.tuannq.authentication.entity.Users;
 import com.tuannq.authentication.exception.ArgumentException;
 import com.tuannq.authentication.exception.NotFoundException;
+import com.tuannq.authentication.model.dto.UserDTO;
 import com.tuannq.authentication.model.request.*;
+import com.tuannq.authentication.model.response.PageResponse;
 import com.tuannq.authentication.model.type.TransactionType;
 import com.tuannq.authentication.repository.OTPRepository;
 import com.tuannq.authentication.repository.UserRepository;
 import com.tuannq.authentication.service.MailService;
 import com.tuannq.authentication.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.tuannq.authentication.util.ConverterUtils;
+import com.tuannq.authentication.util.PageUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,8 +31,11 @@ import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Optional;
 
+import static com.tuannq.authentication.config.DefaultVariable.LIMIT;
+
 
 @Component
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
@@ -37,23 +44,12 @@ public class UserServiceImpl implements UserService {
     private final MessageSource messageSource;
     private final OTPRepository otpRepository;
 
-    @Autowired
-    public UserServiceImpl(
-            UserRepository userRepository,
-            MailService mailService,
-            MessageSource messageSource,
-            AuthenticationManager authenticationManager,
-            OTPRepository otpRepository,
-            PasswordEncoder passwordEncoder
-    ) {
-        this.otpRepository = otpRepository;
-        this.userRepository = userRepository;
-        this.mailService = mailService;
-        this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
-        this.messageSource = messageSource;
+    @Override
+    public PageResponse<UserDTO> search(UserSearchForm form) {
+        var data =  userRepository.search(form,  new PageUtil(form.getPage(), LIMIT, form.getOrder(), form.getDirection()).getPageRequest())
+                .map(UserDTO::new);
+        return new PageResponse<>(data);
     }
-
 
     @Override
     public void deleteById(long id) {
@@ -83,7 +79,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public void changePasswordWithOTP(ChangePasswordWithOTPRequest form) {
+    public Users changePasswordWithOTP(ChangePasswordWithOTPRequest form) {
         Users user = userRepository.findByEmail(form.getEmail());
         if (user == null)
             throw new ArgumentException("email", messageSource.getMessage("email.not-found", null, LocaleContextHolder.getLocale()));
@@ -91,25 +87,56 @@ public class UserServiceImpl implements UserService {
         checkOTP(otpOptional, form.getOtp());
 
         user.setPassword(passwordEncoder.encode(form.getNewPassword()));
-        userRepository.save(user);
-    }
-
-    @Override
-    public Users register(UserForm form) {
-        var password = passwordEncoder.encode(form.getPassword());
-        var user = new Users(form, password);
-        if (userRepository.findExistByEmail(form.getEmail()) != null)
-            throw new ArgumentException("phone", messageSource.getMessage("phone.exist", null, LocaleContextHolder.getLocale()));
-        if (userRepository.findExistByUsername(form.getUsername()) != null)
-            throw new ArgumentException("username", messageSource.getMessage("username.exist", null, LocaleContextHolder.getLocale()));
         return userRepository.save(user);
     }
 
+    @Transactional
+    @Override
+    public Users addUserByAdmin(UserFormAdmin form) throws ArgumentException, MessagingException, UnsupportedEncodingException {
+        if (userRepository.findByPhone(form.getPhone()) != null)
+            throw new ArgumentException("phone", messageSource.getMessage("phone.exist", null, LocaleContextHolder.getLocale()));
+        if (userRepository.findByEmail(form.getEmail()) != null)
+            throw new ArgumentException("email", messageSource.getMessage("email.exist", null, LocaleContextHolder.getLocale()));
+
+        String pwd = ConverterUtils.generateRandomPassword();
+        Users user = new Users(form, passwordEncoder.encode(pwd));
+
+        mailService.sendPassword(user.getEmail(), pwd);
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    @Override
+    public Users editUserByAdmin(Users user, UserFormAdmin form) throws ArgumentException {
+        Users u1 = userRepository.findByPhone(form.getPhone());
+        if (u1 != null && !u1.getId().equals(user.getId()))
+            throw new ArgumentException("phone", messageSource.getMessage("phone.exist", null, LocaleContextHolder.getLocale()));
+        Users u2 = userRepository.findByEmail(form.getEmail());
+        if (u2 != null && !u2.getId().equals(user.getId()))
+            throw new ArgumentException("email", messageSource.getMessage("email.exist", null, LocaleContextHolder.getLocale()));
+
+        user.setUser(form);
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    @Override
+    public Users updateProfile(Users user, UpdateProfileForm form) throws ArgumentException {
+        Users u1 = userRepository.findByPhone(form.getPhone());
+        if (u1 != null && !u1.getId().equals(user.getId()))
+            throw new ArgumentException("phone", messageSource.getMessage("phone.exist", null, LocaleContextHolder.getLocale()));
+        Users u2 = userRepository.findByEmail(form.getEmail());
+        if (u2 != null && !u2.getId().equals(user.getId()))
+            throw new ArgumentException("email", messageSource.getMessage("email.exist", null, LocaleContextHolder.getLocale()));
+
+        user.setUser(form);
+        return userRepository.save(user);
+    }
 
     @Transactional
     @Override
     public Authentication authenticate(LoginForm form) {
-        Users ue = userRepository.findExistByEmail(form.getEmail());
+        Users ue = userRepository.findExistByUsernameIgnoreCaseOrEmailIgnoreCase(form.getUsername());
         if (ue == null)
             throw new BadCredentialsException(messageSource.getMessage("info-login.incorrect", null, LocaleContextHolder.getLocale()));
 
@@ -119,7 +146,7 @@ public class UserServiceImpl implements UserService {
 
         return authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        form.getEmail(),
+                        form.getUsername(),
                         form.getPassword()
                 )
         );
@@ -130,6 +157,16 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(id);
     }
 
+    @Override
+    public Users addUserByCustomer(UserFormCustomer form) throws ArgumentException {
+        if (userRepository.findByPhone(form.getPhone()) != null)
+            throw new ArgumentException("phone", messageSource.getMessage("phone.exist", null, LocaleContextHolder.getLocale()));
+        if (userRepository.findByEmail(form.getEmail()) != null)
+            throw new ArgumentException("email", messageSource.getMessage("email.exist", null, LocaleContextHolder.getLocale()));
+
+        Users user = new Users(form, passwordEncoder.encode(form.getPassword()));
+        return userRepository.save(user);
+    }
 
     @Override
     public void changePassword(Users user, ChangePasswordForm form) throws ArgumentException {

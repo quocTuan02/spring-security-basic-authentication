@@ -6,7 +6,7 @@ import com.tuannq.authentication.model.dto.UserDTO;
 import com.tuannq.authentication.model.request.ChangePasswordWithOTPRequest;
 import com.tuannq.authentication.model.request.ForgotPasswordForm;
 import com.tuannq.authentication.model.request.LoginForm;
-import com.tuannq.authentication.model.request.UserForm;
+import com.tuannq.authentication.model.request.UserFormCustomer;
 import com.tuannq.authentication.model.response.SuccessResponse;
 import com.tuannq.authentication.security.CustomUserDetails;
 import com.tuannq.authentication.security.JwtTokenUtil;
@@ -92,10 +92,10 @@ public class AuthenticationController {
 
     @PostMapping("/api/register")
     public ResponseEntity<SuccessResponse<UserDTO>> register(
-            @Validated @RequestBody UserForm form,
+            @Validated @RequestBody UserFormCustomer form,
             HttpServletResponse response
     ) throws ArgumentException {
-        Users user = userService.register(form);
+        Users user = userService.addUserByCustomer(form);
 
         // Gen token
         UserDetails principal = new CustomUserDetails(user);
