@@ -26,6 +26,15 @@ public class UserFormAdmin {
     )
     private String fullName;
 
+    @NotBlank(message = "not-null")
+    @Pattern(regexp = "^[a-zA-Z]([._-](?![._-])|[a-zA-Z0-9]){1,18}[a-zA-Z0-9]$", message = "\n^[a-zA-Z]([._-](?![._-])|[a-zA-Z0-9]){1,18}[a-zA-Z0-9]$")
+    @ApiModelProperty(
+            example = "TuanNQ",
+            notes = "not-null",
+            required = true
+    )
+    private String username;
+
     @NotNull(message = "not-null")
     @NotEmpty(message = "not-null")
     @Email
@@ -54,19 +63,7 @@ public class UserFormAdmin {
     )
     private List<String> roles;
 
-    @NotNull(message = "not-null")
-    @NotEmpty(message = "not-null")
-    @Pattern(regexp = "[012]", message = "gender.invalid")
-    @ApiModelProperty(
-            example = "0",
-            notes = "not-null",
-            required = true
-    )
-    private String gender;
-
-    @NotNull(message = "not-null")
-    @NotEmpty(message = "not-null")
-    @Size(min = 5, max = 511, message = "size-5-511")
+    @Size(max = 511, message = "size-5-511")
     @ApiModelProperty(
             example = "Thiệu Ngọc, Thiệu Hóa, Thanh Hóa.",
             notes = "not-null",

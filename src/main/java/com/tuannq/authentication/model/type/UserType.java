@@ -3,6 +3,7 @@ package com.tuannq.authentication.model.type;
 public enum UserType {
 
     ADMIN ("ADMIN", "ROLE_ADMIN"),
+    EMPLOYEE ("EMPLOYEE", "ROLE_EMPLOYEE"),
     USER("USER", "ROLE_USER"),
     ANONYMOUS("ANONYMOUS", "ROLE_ANONYMOUS");
 

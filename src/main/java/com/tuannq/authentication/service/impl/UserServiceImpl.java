@@ -15,6 +15,7 @@ import com.tuannq.authentication.service.UserService;
 import com.tuannq.authentication.util.ConverterUtils;
 import com.tuannq.authentication.util.PageUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -46,7 +47,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageResponse<UserDTO> search(UserSearchForm form) {
-        var data =  userRepository.search(form,  new PageUtil(form.getPage(), LIMIT, form.getOrder(), form.getDirection()).getPageRequest())
+        var data = userRepository.search(form, new PageUtil(form.getPage(), LIMIT, form.getOrder(), form.getDirection()).getPageRequest())
                 .map(UserDTO::new);
         return new PageResponse<>(data);
     }
@@ -62,13 +63,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Users findByEmail(String email) {
-        return userRepository.findByEmail(email);
+        return userRepository.findByEmailIgnoreCase(email);
     }
 
     @Transactional
     @Override
     public String sendOTPToEmail(String email) throws MessagingException, UnsupportedEncodingException {
-        Users user = userRepository.findByEmail(email);
+        Users user = userRepository.findByEmailIgnoreCase(email);
         if (user == null)
             throw new ArgumentException("email", messageSource.getMessage("email.not-found", null, LocaleContextHolder.getLocale()));
         var otp = generateOTP(TransactionType.FORGOT_PASSWORD, email);
@@ -80,7 +81,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public Users changePasswordWithOTP(ChangePasswordWithOTPRequest form) {
-        Users user = userRepository.findByEmail(form.getEmail());
+        Users user = userRepository.findByEmailIgnoreCase(form.getEmail());
         if (user == null)
             throw new ArgumentException("email", messageSource.getMessage("email.not-found", null, LocaleContextHolder.getLocale()));
         var otpOptional = otpRepository.findTransactionAndEmail(TransactionType.FORGOT_PASSWORD.name(), form.getEmail());
@@ -93,9 +94,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public Users addUserByAdmin(UserFormAdmin form) throws ArgumentException, MessagingException, UnsupportedEncodingException {
-        if (userRepository.findByPhone(form.getPhone()) != null)
+        if (Strings.isNotBlank(form.getPhone()) && userRepository.findByPhone(form.getPhone()) != null)
             throw new ArgumentException("phone", messageSource.getMessage("phone.exist", null, LocaleContextHolder.getLocale()));
-        if (userRepository.findByEmail(form.getEmail()) != null)
+        if (userRepository.findByEmailIgnoreCase(form.getEmail()) != null)
             throw new ArgumentException("email", messageSource.getMessage("email.exist", null, LocaleContextHolder.getLocale()));
 
         String pwd = ConverterUtils.generateRandomPassword();
@@ -108,10 +109,13 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public Users editUserByAdmin(Users user, UserFormAdmin form) throws ArgumentException {
-        Users u1 = userRepository.findByPhone(form.getPhone());
+        Users u1 = null;
+        if (Strings.isNotBlank(form.getPhone())) {
+            u1 = userRepository.findByPhone(form.getPhone());
+        }
         if (u1 != null && !u1.getId().equals(user.getId()))
             throw new ArgumentException("phone", messageSource.getMessage("phone.exist", null, LocaleContextHolder.getLocale()));
-        Users u2 = userRepository.findByEmail(form.getEmail());
+        Users u2 = userRepository.findByEmailIgnoreCase(form.getEmail());
         if (u2 != null && !u2.getId().equals(user.getId()))
             throw new ArgumentException("email", messageSource.getMessage("email.exist", null, LocaleContextHolder.getLocale()));
 
@@ -122,10 +126,13 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public Users updateProfile(Users user, UpdateProfileForm form) throws ArgumentException {
-        Users u1 = userRepository.findByPhone(form.getPhone());
+        Users u1 = null;
+        if (Strings.isNotBlank(form.getPhone())) {
+            u1 = userRepository.findByPhone(form.getPhone());
+        }
         if (u1 != null && !u1.getId().equals(user.getId()))
             throw new ArgumentException("phone", messageSource.getMessage("phone.exist", null, LocaleContextHolder.getLocale()));
-        Users u2 = userRepository.findByEmail(form.getEmail());
+        Users u2 = userRepository.findByEmailIgnoreCase(form.getEmail());
         if (u2 != null && !u2.getId().equals(user.getId()))
             throw new ArgumentException("email", messageSource.getMessage("email.exist", null, LocaleContextHolder.getLocale()));
 
@@ -159,9 +166,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Users addUserByCustomer(UserFormCustomer form) throws ArgumentException {
-        if (userRepository.findByPhone(form.getPhone()) != null)
+        if (Strings.isNotBlank(form.getPhone()) && userRepository.findByPhone(form.getPhone()) != null)
             throw new ArgumentException("phone", messageSource.getMessage("phone.exist", null, LocaleContextHolder.getLocale()));
-        if (userRepository.findByEmail(form.getEmail()) != null)
+        if (userRepository.findByEmailIgnoreCase(form.getEmail()) != null)
             throw new ArgumentException("email", messageSource.getMessage("email.exist", null, LocaleContextHolder.getLocale()));
 
         Users user = new Users(form, passwordEncoder.encode(form.getPassword()));

@@ -73,25 +73,12 @@ $(document).ready(function () {
                             <span class="invalid-feedback" id="invalid-feedback__fullName--edit"></span>
                         </div>
                         <div class="form-group">
-                            <label class="required-label min-w-20 mr-1">Giới Tính</label>
-                            <div class="form-check form-check-inline mr-4 ">
-                                <input name="gender" value="0" required type="radio" ${data.data.gender === 0 ? "checked" : ""}
-                                    class="form-check-input" id="gender-male--edit">
-                                <label class="form-check-label" for="gender-male--edit"> Nam </label>
-                            </div>
-                            <div class="form-check form-check-inline mr-4 ">
-                                <input name="gender" value="1" required type="radio" ${data.data.gender === 1 ? "checked" : ""}
-                                       class="form-check-input" id="gender-female--edit">
-                                <label class="form-check-label" for="gender-female--edit"> Nữ </label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input name="gender" value="2" required type="radio" ${data.data.gender === 2 ? "checked" : ""}
-                                       class="form-check-input" id="gender-other--edit">
-                                <label class="form-check-label" for="gender-other--edit"> Khác </label>
-                            </div>
-                            <div class="">
-                                <span class="invalid-feedback" id="invalid-feedback__gender--edit"></span>
-                            </div>
+                            <label class="required-label" for="username--new">Tên tài khoản</label>
+                            <input name="username" required type="text" 
+                                   value="${data.data.username}"
+                                   placeholder="Username" class="form-control"
+                                   id="username--new">
+                            <span class="invalid-feedback" id="invalid-feedback__username--edit"></span>
                         </div>
                         <div class="form-group">
                             <label class="required-label" for="email--edit">Email</label>
@@ -99,16 +86,16 @@ $(document).ready(function () {
                             <span class="invalid-feedback" id="invalid-feedback__email--edit"></span>
                         </div>
                         <div class="form-group">
-                            <label class="required-label" for="phone--edit">SĐT</label>
-                            <input name="phone" required value="${data.data.phone}"
+                            <label class="" for="phone--edit">SĐT</label>
+                            <input name="phone" value="${data.data.phone}"
                                    type="tel" pattern="0[1-9][0-9]{8}"
                                    class="form-control"
                                    id="phone--edit">
                             <span class="invalid-feedback" id="invalid-feedback__phone--edit"></span>
                         </div>
                         <div class="form-group">
-                            <label class="required-label" for="address--edit">Địa chỉ</label>
-                            <input name="address" minlength="5" maxlength="511" required
+                            <label class="" for="address--edit">Địa chỉ</label>
+                            <input name="address" minlength="5" maxlength="511"
                                    type="text" value="${data.data.address}"
                                    class="form-control" id="address--edit">
                             <span class="invalid-feedback" id="invalid-feedback__address--edit"></span>

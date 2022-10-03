@@ -19,13 +19,13 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 
     Users findExistByUsernameIgnoreCaseOrEmailIgnoreCase(String username, String email);
 
-    default Users findExistByUsernameIgnoreCaseOrEmailIgnoreCase(String username){
+    default Users findExistByUsernameIgnoreCaseOrEmailIgnoreCase(String username) {
         return findExistByUsernameIgnoreCaseOrEmailIgnoreCase(username, username);
     }
 
     Users findByPhone(String phone);
 
-    Users findByEmail(String email);
+    Users findByEmailIgnoreCase(String email);
 
     @Query("select x1 from Users x1 " +
             "where :keyword is null " +
@@ -40,7 +40,7 @@ public interface UserRepository extends JpaRepository<Users, Long> {
             "and (:#{#form.email} is null or :#{#form.email} = '' or lower(coalesce(x1.email, '') ) like lower(concat('%',:#{#form.email},'%'))) " +
             "and (:#{#form.phone} is null or :#{#form.phone} = '' or lower(coalesce(x1.phone, '') ) like lower(concat('%',:#{#form.phone},'%'))) " +
             "and (:#{#form.address} is null or :#{#form.address} = '' or lower(coalesce(x1.address, '') ) like lower(concat('%',:#{#form.address},'%'))) " +
-            "and (:#{#form.roles} is null or :#{#form.roles} = '' ) " +
+            "and (:#{#form.roles} is null or :#{#form.roles} = '' or lower(coalesce(x1.roles, '') ) like lower(concat('%',:#{#form.roles},'%'))) " +
             "and (:#{#form.id} is null or :#{#form.id} = '' or concat(x1.id, '') = :#{#form.id} ) ")
     Page<Users> search(UserSearchForm form, Pageable pageable);
 

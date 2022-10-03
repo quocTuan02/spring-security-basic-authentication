@@ -19,7 +19,7 @@ import javax.validation.constraints.*;
 @FieldMatch(first = "confirmPassword", second = "password", message = "password.not-match")
 public class UserFormCustomer {
     @NotBlank(message = "not-null")
-    @Pattern(regexp = "^[a-zA-Z0-9]([._-](?![._-])|[a-zA-Z0-9]){3,18}[a-zA-Z0-9]$", message = "\n^[a-zA-Z0-9]([._-](?![._-])|[a-zA-Z0-9]){3,18}[a-zA-Z0-9]$")
+    @Pattern(regexp = "^[a-zA-Z]([._-](?![._-])|[a-zA-Z0-9]){1,18}[a-zA-Z0-9]$", message = "\n^[a-zA-Z]([._-](?![._-])|[a-zA-Z0-9]){1,18}[a-zA-Z0-9]$")
     @ApiModelProperty(
             example = "TuanNQ",
             notes = "not-null",

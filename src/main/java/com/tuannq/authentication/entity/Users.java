@@ -25,17 +25,17 @@ import java.util.List;
         typeClass = JsonStringType.class
 )
 public class Users extends BaseEntity {
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 511)
     private String username;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 511)
     private String fullName;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 511)
     private String email;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 511)
     private String password;
-    @Column(unique = true)
+    @Column(length = 511)
     private String phone;
-    @Column(nullable = true, length = 511)
+    @Column(length = 511)
     private String address;
 
     @Type(type = "json")
@@ -48,6 +48,7 @@ public class Users extends BaseEntity {
         this.phone = form.getPhone();
         this.address = form.getAddress();
         this.roles = form.getRoles();
+        this.username = form.getUsername();
         this.setIsDeleted(form.getIsDeleted());
     }
 
@@ -72,6 +73,7 @@ public class Users extends BaseEntity {
         this.phone = form.getPhone();
         this.address = form.getAddress();
         this.roles = form.getRoles();
+        this.username = form.getUsername();
     }
 
     public Users(UserFormCustomer form, String password) {
@@ -81,5 +83,6 @@ public class Users extends BaseEntity {
         this.phone = form.getPhone();
         this.address = form.getAddress();
         this.roles = List.of(UserType.USER.getRole());
+        this.username = form.getUsername();
     }
 }
