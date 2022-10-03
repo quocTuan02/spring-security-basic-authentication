@@ -30,6 +30,12 @@ function getFormData($form) {
     return indexed_array;
 }
 
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
 function serialize(obj) {
     let str = [];
     for (let p in obj)

@@ -1,4 +1,6 @@
 $(document).ready(function () {
+    const  info = JSON.parse(decodeURIComponent(getCookie("info")));
+
     $("#modal-add-new-user").on("hidden.bs.modal", function () {
         $("#modal-add-new-user form")[0].reset();
         $('.invalid-feedback').hide()
@@ -24,12 +26,12 @@ $(document).ready(function () {
                         <td>${data.data.email}</td>
                         <td>${data.data.phone}</td>
                         <td>${data.data.address}</td>
-                        <td class="${data.data.isDeleted ? "is-deleted " : ""} text-capitalize text-nowrap">[${data.data.roles}]</td>
-                        <td>
-                            <button class="btn btn-edit__user" data-id="${data.data.id}">
+                        <td class="${data.data.isDeleted ? "is-deleted " : ""} text-capitalize text-nowrap">[${data.data.role}]</td>
+                        <td class="text-right">
+                            <button type="button" class="btn btn-edit__user" data-id="${data.data.id}">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn btn-confirm-delete__user" data-id="${data.data.id}">
+                            <button type="button" class="btn btn-confirm-delete__user" data-id="${data.data.id}">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </td>
@@ -101,27 +103,36 @@ $(document).ready(function () {
                             <span class="invalid-feedback" id="invalid-feedback__address--edit"></span>
                         </div>
                         <div class="form-group">
-                            <label class="required-label min-w-20 mr-1">Roles</label>
+                            <label class="required-label min-w-20 mr-1">role</label>
+                            ${info.role === 'ADMIN' ? `
+                                <div class="form-check form-check-inline">
+                                    <input name="role" value="ADMIN" required ${data.data.role === "ADMIN" ? "checked" : ""}
+                                           id="role-admin--edit" class="form-check-input" type="radio">
+                                    <label class="form-check-label" for="role-admin--edit">ADMIN</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input name="role" value="EMPLOYEE" required ${data.data.role === "EMPLOYEE" ? "checked" : ""}
+                                           id="role-employee--edit" class="form-check-input" type="radio">
+                                    <label class="form-check-label" for="role-employee--edit">EMPLOYEE</label>
+                                </div>
+                            ` : ``}
                             <div class="form-check form-check-inline">
-                                <input name="roles[]" value="ADMIN" required ${data.data.roles?.includes("ADMIN") ? "checked" : ""}
-                                       id="roles-admin--edit" class="form-check-input" type="checkbox">
-                                <label class="form-check-label" for="roles-admin--edit">ADMIN</label>
+                                <input name="role" value="USER" required ${data.data.role === "USER" ? "checked" : ""}
+                                       id="role-user--edit" class="form-check-input" type="radio">
+                                <label class="form-check-label" for="role-user--edit">USER</label>
                             </div>
-                            <div class="form-check form-check-inline">
-                                <input name="roles[]" value="USER" required ${data.data.roles?.includes("USER") ? "checked" : ""}
-                                       id="roles-user--edit" class="form-check-input" type="checkbox">
-                                <label class="form-check-label" for="roles-user--edit">USER</label>
-                            </div>
-                            <div class=""><span class="invalid-feedback" id="invalid-feedback__roles--edit"></span></div>
+                            <div class=""><span class="invalid-feedback" id="invalid-feedback__role--edit"></span></div>
                         </div>
                         <div class="form-group">
-                            <div class="">
-                                <label class="required-label min-w-20 mr-1">Is deleted</label>
-                                <div class="form-check form-check-inline">
-                                    <input name="isDeleted" value="true" ${data.data.isDeleted ? "checked" : ""}
-                                           id="isDeleted--edit" class="form-check-input" type="checkbox">
+                            ${info.role === 'ADMIN' ? `
+                                <div class="">
+                                    <label class="required-label min-w-20 mr-1">Is deleted</label>
+                                    <div class="form-check form-check-inline">
+                                        <input name="isDeleted" value="true" ${data.data.isDeleted ? "checked" : ""}
+                                               id="isDeleted--edit" class="form-check-input" type="checkbox">
+                                    </div>
                                 </div>
-                            </div>
+                            ` : ``}
                             <div class='${data.data.createdBy == null ? "d-none" : ""}'><label data-id="${data.data.createdBy ? data.data.createdBy.id : ""}">Người tạo:</label> <samp>${data.data.createdBy ? data.data.createdBy.fullName : ""}</samp></div>
                             <div class=""><label>Thời gian tạo:</label> <samp>${data.data.createdAt}</samp></div>
                             <div class='${data.data.modifiedBy == null ? "d-none" : ""}'><label data-id="${data.data.modifiedBy ? data.data.modifiedBy.id : ""}">Cập nhật lần cuối bởi:</label> <samp>${data.data.modifiedBy ? data.data.modifiedBy.fullName : ""}</samp></div>
@@ -159,12 +170,12 @@ $(document).ready(function () {
                     <td>${data.data.email}</td>
                     <td>${data.data.phone}</td>
                     <td>${data.data.address}</td>
-                    <td class="${data.data.isDeleted ? "is-deleted " : ""} text-capitalize text-nowrap">[${data.data.roles}]</td>
-                    <td>
-                        <button class="btn btn-view-edit__user" data-id="${data.data.id}">
+                    <td class="${data.data.isDeleted ? "is-deleted " : ""} text-capitalize text-nowrap">${data.data.role}</td>
+                    <td class="text-right">
+                        <button type="button" class="btn btn-view-edit__user" data-id="${data.data.id}">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-confirm-delete__user" data-id="${data.data.id}">
+                        <button type="button" class="btn btn-confirm-delete__user" data-id="${data.data.id}">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </td>

@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import java.io.UnsupportedEncodingException;
+import java.util.Objects;
 
 @Controller
 @RequiredArgsConstructor
@@ -39,7 +40,9 @@ public class ManageUserController {
             Model model,
             UserSearchForm form
     ) {
+        var identity = authUtils.getUser().get();
         var users = userService.search(form);
+        model.addAttribute("identity", new UserDTO(identity));
         model.addAttribute("users", users);
         model.addAttribute("formSearch", form);
         model.addAttribute("totalPages", users.getTotalPages());
@@ -85,8 +88,13 @@ public class ManageUserController {
             throw new NotFoundException(messageSource.getMessage("not-found.user.id", null, LocaleContextHolder.getLocale()).concat(String.valueOf(id)));
         var identity = authUtils.getUser().get();
 
-        if (identity.getId() == id && form.getIsDeleted())
-            throw new BadRequestException(messageSource.getMessage("update.fail", null, LocaleContextHolder.getLocale()));
+        if (identity.getId() == id) {
+            if (form.getIsDeleted()
+                    || Objects.equals(form.getRole(), identity.getRole())
+            ) {
+                throw new BadRequestException(messageSource.getMessage("update.fail", null, LocaleContextHolder.getLocale()));
+            }
+        }
 
         Users user = userService.editUserByAdmin(userOpt.get(), form);
 

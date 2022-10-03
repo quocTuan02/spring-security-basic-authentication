@@ -12,6 +12,7 @@ import com.tuannq.authentication.repository.OTPRepository;
 import com.tuannq.authentication.repository.UserRepository;
 import com.tuannq.authentication.service.MailService;
 import com.tuannq.authentication.service.UserService;
+import com.tuannq.authentication.util.AuthUtils;
 import com.tuannq.authentication.util.ConverterUtils;
 import com.tuannq.authentication.util.PageUtil;
 import lombok.RequiredArgsConstructor;
@@ -44,11 +45,18 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final MessageSource messageSource;
     private final OTPRepository otpRepository;
+    private final AuthUtils authUtils;
 
     @Override
     public PageResponse<UserDTO> search(UserSearchForm form) {
-        var data = userRepository.search(form, new PageUtil(form.getPage(), LIMIT, form.getOrder(), form.getDirection()).getPageRequest())
-                .map(UserDTO::new);
+        var role = authUtils.getUser()
+                .map(Users::getRole)
+                .orElse("");
+        var data = userRepository.search(
+                role,
+                form,
+                new PageUtil(form.getPage(), LIMIT, form.getOrder(), form.getDirection()).getPageRequest()
+        ).map(UserDTO::new);
         return new PageResponse<>(data);
     }
 
@@ -96,6 +104,8 @@ public class UserServiceImpl implements UserService {
     public Users addUserByAdmin(UserFormAdmin form) throws ArgumentException, MessagingException, UnsupportedEncodingException {
         if (Strings.isNotBlank(form.getPhone()) && userRepository.findByPhone(form.getPhone()) != null)
             throw new ArgumentException("phone", messageSource.getMessage("phone.exist", null, LocaleContextHolder.getLocale()));
+        if (Strings.isNotBlank(form.getUsername()) && userRepository.findByUsername(form.getUsername()) != null)
+            throw new ArgumentException("username", "username.exist");
         if (userRepository.findByEmailIgnoreCase(form.getEmail()) != null)
             throw new ArgumentException("email", messageSource.getMessage("email.exist", null, LocaleContextHolder.getLocale()));
 
@@ -118,6 +128,10 @@ public class UserServiceImpl implements UserService {
         Users u2 = userRepository.findByEmailIgnoreCase(form.getEmail());
         if (u2 != null && !u2.getId().equals(user.getId()))
             throw new ArgumentException("email", messageSource.getMessage("email.exist", null, LocaleContextHolder.getLocale()));
+
+        Users u3 = userRepository.findByUsername(form.getUsername());
+        if (u3 != null && !u3.getId().equals(user.getId()))
+            throw new ArgumentException("username", "username.exist");
 
         user.setUser(form);
         return userRepository.save(user);
@@ -143,7 +157,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public Authentication authenticate(LoginForm form) {
-        Users ue = userRepository.findExistByUsernameIgnoreCaseOrEmailIgnoreCase(form.getUsername());
+        Users ue = userRepository.findExistByUsernameOrEmailIgnoreCase(form.getUsername());
         if (ue == null)
             throw new BadCredentialsException(messageSource.getMessage("info-login.incorrect", null, LocaleContextHolder.getLocale()));
 

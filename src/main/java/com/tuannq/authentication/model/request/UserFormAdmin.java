@@ -61,7 +61,7 @@ public class UserFormAdmin {
             notes = "not-null",
             required = true
     )
-    private List<String> roles;
+    private String role;
 
     @Size(max = 511, message = "size-5-511")
     @ApiModelProperty(
@@ -72,8 +72,7 @@ public class UserFormAdmin {
     private String address;
 
     @ApiModelProperty(
-            example = "false",
-            required = false
+            example = "false"
     )
     private Boolean isDeleted = false;
 }

@@ -18,10 +18,8 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         ArrayList<GrantedAuthority> roles = new ArrayList<>();
-        if (user != null && user.getRoles() != null) {
-            for (String role : user.getRoles()) {
-                roles.add(new SimpleGrantedAuthority("ROLE_" + role));
-            }
+        if (user != null && user.getRole() != null) {
+            roles.add(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
         }
 
         return roles;

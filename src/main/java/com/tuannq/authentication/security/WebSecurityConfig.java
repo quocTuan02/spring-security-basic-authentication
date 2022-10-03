@@ -2,6 +2,7 @@ package com.tuannq.authentication.security;
 
 import com.tuannq.authentication.config.PasswordEncoderConfig;
 import com.tuannq.authentication.model.type.UserType;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,28 +18,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @EnableWebSecurity
 @Configuration
-public class WebSecurityConfig<CustomUserDetailService> extends WebSecurityConfigurerAdapter {
+@RequiredArgsConstructor
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final AuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     private final JwtRequestFilter jwtRequestFilter;
+    private final JwtResponseFilter jwtResponseFilter;
 
     private final JwtUserDetailsService jwtUserDetailsService;
 
     private final PasswordEncoderConfig passwordEncoder;
-
-    @Autowired
-    public WebSecurityConfig(
-            PasswordEncoderConfig passwordEncoder,
-            AuthenticationEntryPoint jwtAuthenticationEntryPoint,
-            JwtRequestFilter jwtRequestFilter,
-            JwtUserDetailsService jwtUserDetailsService
-    ) {
-        this.passwordEncoder = passwordEncoder;
-        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
-        this.jwtRequestFilter = jwtRequestFilter;
-        this.jwtUserDetailsService = jwtUserDetailsService;
-    }
-
 
     @Autowired
     protected void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -74,7 +63,7 @@ public class WebSecurityConfig<CustomUserDetailService> extends WebSecurityConfi
                         "/api/change-password",
                         "/api/update-profile"
                 ).authenticated()
-                .antMatchers("/admin/**", "/api/admin/**").hasRole(UserType.ADMIN.getRole())
+                .antMatchers("/admin/**", "/api/admin/**").hasAnyRole(UserType.ADMIN.getRole(), UserType.EMPLOYEE.getRole())
                 .anyRequest().permitAll()
                 .and()
                 .logout()
@@ -89,6 +78,7 @@ public class WebSecurityConfig<CustomUserDetailService> extends WebSecurityConfi
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(jwtResponseFilter, UsernamePasswordAuthenticationFilter.class).authorizeRequests();
     }
 
     @Override

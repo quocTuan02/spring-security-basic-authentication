@@ -6,13 +6,16 @@ import com.tuannq.authentication.model.request.UserFormAdmin;
 import com.tuannq.authentication.model.request.UserFormCustomer;
 import com.tuannq.authentication.model.type.UserType;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
-import lombok.*;
-import org.hibernate.annotations.Type;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.TypeDef;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
-import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 
 @Getter
 @Setter
@@ -38,16 +41,35 @@ public class Users extends BaseEntity {
     @Column(length = 511)
     private String address;
 
-    @Type(type = "json")
-    @Column(nullable = false, columnDefinition = "json")
-    private List<String> roles;
+    @Column(nullable = false, length = 127)
+    private String role;
+
+    @Column(length = 127)
+    public String employee_isActive;
+    @Column(length = 2047)
+    public String employee_note;
+    @Column(length = 127)
+    public String admin_isActive;
+    @Column(length = 2047)
+    public String admin_note;
+
+
+    public Users(String username, String fullName, String email, String password, String phone, String address, String role) {
+        this.username = username;
+        this.fullName = fullName;
+        this.email = email;
+        this.password = password;
+        this.phone = phone;
+        this.address = address;
+        this.role = role;
+    }
 
     public void setUser(UserFormAdmin form) {
         this.fullName = form.getFullName();
         this.email = form.getEmail();
         this.phone = form.getPhone();
         this.address = form.getAddress();
-        this.roles = form.getRoles();
+        this.role = form.getRole();
         this.username = form.getUsername();
         this.setIsDeleted(form.getIsDeleted());
     }
@@ -72,7 +94,7 @@ public class Users extends BaseEntity {
         this.password = password;
         this.phone = form.getPhone();
         this.address = form.getAddress();
-        this.roles = form.getRoles();
+        this.role = form.getRole();
         this.username = form.getUsername();
     }
 
@@ -82,7 +104,7 @@ public class Users extends BaseEntity {
         this.password = password;
         this.phone = form.getPhone();
         this.address = form.getAddress();
-        this.roles = List.of(UserType.USER.getRole());
+        this.role = UserType.USER.getRole();
         this.username = form.getUsername();
     }
 }

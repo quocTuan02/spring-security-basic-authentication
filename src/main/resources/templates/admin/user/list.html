@@ -117,11 +117,19 @@
                                                aria-label="">
                                     </th>
                                     <th>
-                                        <select name="roles" class="form-control thuy-search-select" aria-label="">
-                                            <option value="" th:selected="${formSearch.roles == null}">Tất cả</option>
-                                            <option value="ADMIN" th:selected="${formSearch.roles == 'ADMIN'}">ADMIN
+                                        <select name="role" class="form-control thuy-search-select" aria-label="">
+                                            <option value="" th:selected="${formSearch.getRole == null}">Tất cả</option>
+                                            <option th:if="${identity.role == 'ADMIN'}"
+                                                    value="ADMIN"
+                                                    th:selected="${formSearch.getRole == 'ADMIN'}">
+                                                ADMIN
                                             </option>
-                                            <option value="USER" th:selected="${formSearch.roles == 'USER'}">USER
+                                            <option th:if="${identity.role == 'ADMIN'}"
+                                                    value="EMPLOYEE"
+                                                    th:selected="${formSearch.getRole == 'EMPLOYEE'}">
+                                                EMPLOYEE
+                                            </option>
+                                            <option value="USER" th:selected="${formSearch.getRole == 'USER'}">USER
                                             </option>
                                         </select>
                                     </th>
@@ -143,9 +151,9 @@
                                         <td th:text="${user.getAddress()}"></td>
                                         <td th:if="${user.isDeleted}"
                                             class="is-deleted text-capitalize text-nowrap"
-                                            th:text="${user.getRoles()}"></td>
+                                            th:text="${user.getRole()}"></td>
                                         <td th:unless="${user.isDeleted}" class="text-capitalize text-nowrap"
-                                            th:text="${user.getRoles()}"></td>
+                                            th:text="${user.getRole()}"></td>
                                         <td class="text-right">
                                             <button type="button" class="btn btn-view-edit__user" th:data-id="${user.id}">
                                                 <i class="fas fa-edit"></i>
@@ -216,19 +224,24 @@
                             <span class="invalid-feedback" id="invalid-feedback__address--new"></span>
                         </div>
                         <div class="form-group">
-                            <label class="required-label min-w-20 mr-1">Roles</label>
-                            <div class="form-check form-check-inline">
-                                <input name="roles[]" value="ADMIN" required
-                                       id="roles-admin--new" class="form-check-input" type="checkbox">
-                                <label class="form-check-label" for="roles-admin--new">ADMIN</label>
+                            <label class="required-label min-w-20 mr-1">Role</label>
+                            <div th:if="${identity.role == 'ADMIN'}" class="form-check form-check-inline">
+                                <input name="role" value="ADMIN" required
+                                       id="role-admin--new" class="form-check-input" type="radio">
+                                <label class="form-check-label" for="role-admin--new">ADMIN</label>
+                            </div>
+                            <div th:if="${identity.role == 'ADMIN'}" class="form-check form-check-inline">
+                                <input name="role" value="EMPLOYEE" required
+                                       id="role-employee--new" class="form-check-input" type="radio">
+                                <label class="form-check-label" for="role-employee--new">EMPLOYEE</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input name="roles[]" value="USER" required
-                                       id="roles-user--new" class="form-check-input" type="checkbox">
-                                <label class="form-check-label" for="roles-user--new">USER</label>
+                                <input name="role" value="USER" required
+                                       id="role-user--new" class="form-check-input" type="radio">
+                                <label class="form-check-label" for="role-user--new">USER</label>
                             </div>
                             <div class="">
-                                <span class="invalid-feedback" id="invalid-feedback__roles--new"></span>
+                                <span class="invalid-feedback" id="invalid-feedback__role--new"></span>
                             </div>
                         </div>
                     </form>

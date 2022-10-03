@@ -17,7 +17,7 @@ public class UserDTO extends AbstractDTO {
     private String phone;
     private String address;
 
-    private List<String> roles;
+    private String role;
     public UserDTO(Users user) {
         super(
                 user.getId(),
@@ -32,6 +32,6 @@ public class UserDTO extends AbstractDTO {
         this.phone = user.getPhone();
         this.address = user.getAddress();
         this.username = user.getUsername();
-        this.roles = user.getRoles();
+        this.role = user.getRole();
     }
 }

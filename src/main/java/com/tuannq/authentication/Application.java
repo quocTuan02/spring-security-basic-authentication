@@ -23,16 +23,16 @@ public class Application {
 
     @PostConstruct
     public void init() {
-        var user = userRepository.findExistByUsernameIgnoreCaseOrEmailIgnoreCase("demo");
+        var user = userRepository.findExistByUsernameOrEmailIgnoreCase("demo");
         if (user == null)
             userRepository.save(
                     new Users("demo",
                             "Demo",
                             "demo@yopmai.com",
                             passwordEncoder.encode("demo"),
-                            null,
-                            null,
-                            List.of(UserType.ADMIN.getRole(), UserType.USER.getRole())
+                            "",
+                            "",
+                            UserType.ADMIN.getRole()
                     ));
     }
 }

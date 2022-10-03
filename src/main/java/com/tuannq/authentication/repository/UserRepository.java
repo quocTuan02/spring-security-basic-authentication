@@ -9,18 +9,19 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UserRepository extends JpaRepository<Users, Long> {
     @Query("SELECT x1 FROM Users x1 WHERE x1.isDeleted = false AND LOWER(x1.email) LIKE LOWER(:email) ")
     Users findExistByEmail(@Param("email") String email);
 
-    @Query("SELECT x1 FROM Users x1 WHERE x1.isDeleted = false AND LOWER(x1.username) LIKE LOWER(:username) ")
-    Users findExistByUsername(@Param("username") String username);
+    Users findByUsername(String username);
 
-    Users findExistByUsernameIgnoreCaseOrEmailIgnoreCase(String username, String email);
+    Users findExistByUsernameOrEmailIgnoreCase(String username, String email);
 
-    default Users findExistByUsernameIgnoreCaseOrEmailIgnoreCase(String username) {
-        return findExistByUsernameIgnoreCaseOrEmailIgnoreCase(username, username);
+    default Users findExistByUsernameOrEmailIgnoreCase(String username) {
+        return findExistByUsernameOrEmailIgnoreCase(username, username);
     }
 
     Users findByPhone(String phone);
@@ -40,8 +41,9 @@ public interface UserRepository extends JpaRepository<Users, Long> {
             "and (:#{#form.email} is null or :#{#form.email} = '' or lower(coalesce(x1.email, '') ) like lower(concat('%',:#{#form.email},'%'))) " +
             "and (:#{#form.phone} is null or :#{#form.phone} = '' or lower(coalesce(x1.phone, '') ) like lower(concat('%',:#{#form.phone},'%'))) " +
             "and (:#{#form.address} is null or :#{#form.address} = '' or lower(coalesce(x1.address, '') ) like lower(concat('%',:#{#form.address},'%'))) " +
-            "and (:#{#form.roles} is null or :#{#form.roles} = '' or lower(coalesce(x1.roles, '') ) like lower(concat('%',:#{#form.roles},'%'))) " +
-            "and (:#{#form.id} is null or :#{#form.id} = '' or concat(x1.id, '') = :#{#form.id} ) ")
-    Page<Users> search(UserSearchForm form, Pageable pageable);
+            "and (:#{#form.role} is null or :#{#form.role} = '' or lower(coalesce(x1.role, '') ) = lower(:#{#form.role})) " +
+            "and (:#{#form.id} is null or :#{#form.id} = '' or concat(x1.id, '') = :#{#form.id} ) " +
+            "and ('admin' = lower(:#{#role}) or ('employee' = lower(:#{#role}) and lower(coalesce(x1.role, '')) = 'user'))")
+    Page<Users> search(String role, UserSearchForm form, Pageable pageable);
 
 }
