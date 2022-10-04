@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User And Questionnaire</title>
+    <link th:href="@{../static/css/base.css}" type="text/css" rel="stylesheet"/>
+</head>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<body>
+<div th:if="${isEmpty}">
+    <h1>You have no question, please go back to the main page!</h1>
+    <input type=button value="Main Page"><a th:href="@{/home}"></a>
+</div>
+<div th:if="${not isEmpty}">
+    <h1 th:text="${Questionnaire.id+' : '+Questionnaire.name}"></h1>
+    <ol class="list">
+        <span th:each="question: ${Questionnaire.getQuestionList()}">
+            <li><p th:text="${question.question}"></p></li>
+            <ul th:if="${openEndQuestionList.contains(question)}">
+                <span th:each="answer:${question.getAnswers()}">
+                    <li><p th:text="${answer}"></p></li>
+                </span>
+            </ul>
+
+            <input th:if="${selectionQuestionList.contains(question)}" name="answers_select" th:type="hidden" th:value="${question.getAnswers()}"/>
+            <input th:if="${selectionQuestionList.contains(question)}"  name="options" th:type="hidden" th:value="${question.getOptions()}"/>
+
+            <div th:if="${selectionQuestionList.contains(question)}" class="box">
+                <canvas height="200" width="200" class="pieChart"></canvas>
+            </div>
+
+            <input th:if="${rangeQuestionList.contains(question)}" name="answers_range" th:type="hidden" th:value="${question.getAnswers()}"/>
+            <input th:if="${rangeQuestionList.contains(question)}" name="min" th:type="hidden" th:value="${question.getMinBoundary()}"/>
+            <input th:if="${rangeQuestionList.contains(question)}" name="max" th:type="hidden" th:value="${question.getMaxBoundary()}"/>
+            <div th:if="${rangeQuestionList.contains(question)}" class="box">
+                <canvas height="200" width="200" class="histogram"></canvas>
+            </div>
+        </span>
+    </ol>
+</div>
+
+
+<script>
+    var barColors = ["red", "green", "blue", "orange", "brown"];
+
+    var charts = document.getElementsByClassName("pieChart");
+
+    for (var k = 0; k < charts.length; k++) {
+        var xValues_select = document.getElementsByName("options")[k].value.replace(/[\])}[{(]/g, '').split(', ')
+        console.log(xValues_select);
+        var answers = document.getElementsByName("answers_select")[k].value.replace(/[\])}[{(]/g, '').split(', ')
+        var yValues_select = []
+        console.log(answers)
+        for (var j = 0; j < xValues_select.length; j++) {
+            yValues_select[j] = answers.filter(function (x) {
+                return x === xValues_select[j]
+            }).length
+        }
+        console.log(yValues_select);
+        const ctx = charts[k].getContext('2d');
+        new Chart(ctx, {
+            type: "pie",
+            data: {
+                labels: xValues_select,
+                datasets: [{
+                    backgroundColor: barColors,
+                    data: yValues_select
+                }]
+            }
+        });
+    }
+</script>
+<script>
+    window.onload = function () {
+        var charts = document.getElementsByClassName("histogram");
+
+        for (var k = 0; k < charts.length; k++) {
+            var min = parseInt(document.getElementsByName("min")[k].value)
+            var max = parseInt(document.getElementsByName("max")[k].value)
+
+            var xValues_range = []
+
+            for (var i = min; i <= max; i++) {
+                xValues_range.push(i)
+            }
+
+            var answers = document.getElementsByName("answers_range")[k].value.replace(/[\])}[{(]/g, '').split(', ');
+            var yValues_range = []
+            for (var j = 0; j < xValues_range.length; j++) {
+                yValues_range[j] = answers.filter(function (x) {
+                    return x == xValues_range[j]
+                }).length
+            }
+            const ctx = charts[k].getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: xValues_range,
+                    datasets: [{
+                        data: yValues_range,
+                        backgroundColor: "green",
+                    }]
+                },
+                options: {
+                    legend: {display: false},
+                    title: {
+                        display: true
+                    }
+                }
+            });
+        }
+    }
+</script>
+</body>
+
+<style>
+    .box{
+        width: 400px;
+    }
+
+    .list {
+        color: #ccc;
+        position: relative;
+        font: bold italic 45px/1.5 Helvetica, Verdana, sans-serif;
+        margin-bottom: 20px;
+        margin-left: 100px;
+        font-weight: bold;
+        font-size: 35px;
+    }
+
+    h1{
+        font-size: 45px;
+    }
+
+</style>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Explore All Surveys</title>
+    <link th:href="@{../static/css/base.css}" type="text/css" rel="stylesheet"/>
+    <link th:href="@{../static/css/table.css}" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+<div class="content">
+    <table class="table">
+        <tr id="title">
+            <th>Survey ID</th>
+            <th>Survey Name</th>
+            <th>Do Survey</th>
+        </tr>
+        <tr th:each="survey : ${surveys}">
+            <td th:text="${survey.getId()}"></td>
+            <td th:text="${survey.getName()}"></td>
+            <td><a th:href="@{'/view/'+${survey.id}}"><button>Click Here</button></a></td>
+        </tr>
+    </table>
+</div>
+</body>
+
+</html>

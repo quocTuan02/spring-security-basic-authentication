@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>complete Survey</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link th:href="@{../static/css/base.css}" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+    <h1>Complete the survey successfully!<br>Redirect you to home page...</h1>
+    <script>
+        window.setTimeout(function (){
+            window.location.href='/home';
+        }, 3000)
+    </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<link th:href="@{../static/css/base.css}" type="text/css" rel="stylesheet"/>
+<link th:href="@{../static/css/qCreate.css}" type="text/css" rel="stylesheet"/>
+<head>
+    <meta charset="UTF-8">
+    <title>Questionnaire Create</title>
+
+    <script>
+        function create_div(id){
+            const divElement = document.createElement("div");
+            divElement.id = id;
+            return divElement;
+        }
+
+        function create_label(text) {
+            const labelElement = document.createElement("label");
+            const labelNode = document.createTextNode(text);
+            labelElement.appendChild(labelNode);
+            return labelElement;
+        }
+
+        function create_textarea(rows, cols, name, text) {
+            const textareaElement = document.createElement("textarea");
+            const textareaNode = document.createTextNode(text);
+            textareaElement.rows = rows;
+            textareaElement.cols = cols;
+            textareaElement.name = name;
+            textareaElement.appendChild(textareaNode);
+            return textareaElement;
+        }
+        function create_delete_button(){
+            const buttonElement = document.createElement("button");
+            const labelNode = document.createTextNode(text);
+            labelElement.appendChild(labelNode);
+            return labelElement;
+        }
+
+        function add_OpenEnd_Fields() {
+            const divElement = create_div("open_end");
+            const labelElement = create_label("Open End Question:")
+            const textareaElement = create_textarea(5, 20, "open_end_question", "");
+            divElement.append(labelElement);
+            divElement.append(textareaElement);
+            var insertHere = document.getElementById("addQuestion");
+            insertHere.parentNode.insertBefore(divElement, insertHere);
+        }
+
+        function add_Range_Fields() {
+            const divElement = create_div("range");
+            const labelElement = create_label("Range Question:");
+            const textareaElement = create_textarea(5, 20, "range_question", "");
+            divElement.append(labelElement);
+            divElement.append(textareaElement);
+            const labelElement1 = create_label("Min Boundary:");
+            const textareaElement1 = create_textarea(1, 10, "range_question", "");
+            divElement.append(labelElement1);
+            divElement.append(textareaElement1);
+            const labelElement2 = create_label("Max Boundary:");
+            const textareaElement2 = create_textarea(1, 10, "range_question", "");
+            divElement.append(labelElement2);
+            divElement.append(textareaElement2);
+            var insertHere = document.getElementById("addQuestion");
+            insertHere.parentNode.insertBefore(divElement, insertHere);
+        }
+
+        function add_Selection_Fields() {
+            const divElement = create_div("selection");
+            const labelElement = create_label("Selection Question:")
+            const textareaElement = create_textarea(5, 20, "selection_question", "");
+            divElement.append(labelElement);
+            divElement.append(textareaElement);
+            const labelElement1 = create_label("Options:(Please use ',' to separate the option)");
+            const textareaElement1 = create_textarea(5, 20, "selection_question", "");
+            divElement.append(labelElement1);
+            divElement.append(textareaElement1);
+            var insertHere = document.getElementById("addQuestion");
+            insertHere.parentNode.insertBefore(divElement, insertHere);
+
+        }
+    </script>
+
+</head>
+<body>
+<div id="questionnaire">
+    <form method="POST" action="/create">
+
+        <h3>Create Question</h3>
+
+        <div class = "survey_name">
+        <label>Survey Name:</label>
+        <input type="text" name="survey_name"/>
+        </div>
+        <div class = "add_button">
+        <input type="button" id="field_add_openend" onclick="add_OpenEnd_Fields()" value="Add Open End Question"/>
+        <input type="button" id="field_add_range" onclick="add_Range_Fields()" value="Add Range Question"/>
+        <input type="button" id="field_add_selection" onclick="add_Selection_Fields()" value="Add Selection Question"/>
+        </div>
+        <input type="submit" value="Create"/>
+        <span id="addQuestion"></span>
+
+    </form>
+</div>
+
+
+</body>
+</html>

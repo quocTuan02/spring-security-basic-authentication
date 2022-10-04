@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>View Questionnaire</title>
+    <link th:href="@{../static/css/base.css}" type="text/css" rel="stylesheet"/>
+</head>
+
+<body>
+    <h1 th:text="${'Survey '+questionnaire.getId()+': '+questionnaire.getName()}"></h1>
+    <form th:action="@{'/view/'+${questionnaire.getId()}}" th:method="post">
+        <ol class="list">
+            <li th:each="ques : ${questionnaire.questionList}" class="list-item">
+                <p th:text="${ques.question}"></p>
+                <textarea th:if="${openEndList.contains(ques.getId())}" name="answer" cols="40" rows="5"></textarea>
+                <input th:if="${rangeList.contains(ques.getId())}" type="range" name="answer" th:value="${ques.getMinBoundary()}"
+                       th:min="${ques.getMinBoundary()}" th:max="${ques.getMaxBoundary()}"
+                       oninput="this.nextElementSibling.value = this.value">
+                <output th:if="${rangeList.contains(ques.getId())}" th:text="${ques.getMinBoundary()}"></output>
+                <div th:if="${selectionList.contains(ques.getId())}" class="division">
+                    <label>Please Select Your Answer:</label>
+                    <select id="selectAnswer" name="answer">
+                        <option th:each="option : ${ques.getOptions()}" th:value="${option}" th:text="${option}"></option>
+                    </select>
+                </div>
+            </li>
+            <br>
+        </ol>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+
+<style>
+    h1{
+        font-size: 45px;
+    }
+    .division {
+        width: 500px;
+        margin: 10px
+    }
+    .list {
+        color: #ccc;
+    }
+    .list,.list-item {
+        position: relative;
+        font: bold italic 45px/1.5 Helvetica, Verdana, sans-serif;
+        margin-bottom: 20px;
+        margin-left: 100px;
+    }
+    .list > .list-item{
+        font-weight: bold;
+        font-size: 35px;
+    }
+    .list-item {
+        font: 12px/1.5 Helvetica, sans-serif;
+        margin-left: 100px;
+        color: #555;
+    }
+    input[type=button], input[type=submit] {
+        background-color: #04AA6D;
+        border: none;
+        color: white;
+        padding: 16px 32px;
+        text-decoration: none;
+        margin-left: 500px;
+        cursor: pointer;
+    }
+</style>
+</html>
