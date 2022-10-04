@@ -44,17 +44,13 @@ public class Users extends BaseEntity {
     @Column(nullable = false, length = 127)
     private String role;
 
-    @Column(length = 127)
-    public String employee_isActive;
+    @Column(nullable = false, length = 127)
+    public String status;
     @Column(length = 2047)
-    public String employee_note;
-    @Column(length = 127)
-    public String admin_isActive;
-    @Column(length = 2047)
-    public String admin_note;
+    public String note;
 
 
-    public Users(String username, String fullName, String email, String password, String phone, String address, String role) {
+    public Users(String username, String fullName, String email, String password, String phone, String address, String role, String status) {
         this.username = username;
         this.fullName = fullName;
         this.email = email;
@@ -62,6 +58,7 @@ public class Users extends BaseEntity {
         this.phone = phone;
         this.address = address;
         this.role = role;
+        this.status = status;
     }
 
     public void setUser(UserFormAdmin form) {
@@ -70,6 +67,8 @@ public class Users extends BaseEntity {
         this.phone = form.getPhone();
         this.address = form.getAddress();
         this.role = form.getRole();
+        this.note = form.getNote();
+        this.status = form.getStatus();
         this.username = form.getUsername();
         this.setIsDeleted(form.getIsDeleted());
     }
@@ -96,6 +95,7 @@ public class Users extends BaseEntity {
         this.address = form.getAddress();
         this.role = form.getRole();
         this.username = form.getUsername();
+        this.note = form.getNote();
     }
 
     public Users(UserFormCustomer form, String password) {

@@ -105,6 +105,8 @@ public class AuthenticationController {
         Cookie cookie = new Cookie(JWT_TOKEN, token);
         cookie.setMaxAge(MAX_AGE_COOKIE);
         cookie.setPath("/");
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
         response.addCookie(cookie);
 
         return ResponseEntity.ok(new SuccessResponse<>(
@@ -128,6 +130,9 @@ public class AuthenticationController {
         Cookie cookie = new Cookie(JWT_TOKEN, token);
         cookie.setMaxAge(MAX_AGE_COOKIE);
         cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+
         response.addCookie(cookie);
 
         UserDTO userDTO = new UserDTO(((CustomUserDetails) authentication.getPrincipal()).getUser());

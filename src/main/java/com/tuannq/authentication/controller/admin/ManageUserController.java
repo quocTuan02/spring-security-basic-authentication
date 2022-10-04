@@ -8,6 +8,8 @@ import com.tuannq.authentication.model.dto.UserDTO;
 import com.tuannq.authentication.model.request.UserFormAdmin;
 import com.tuannq.authentication.model.request.UserSearchForm;
 import com.tuannq.authentication.model.response.SuccessResponse;
+import com.tuannq.authentication.model.type.StatusType;
+import com.tuannq.authentication.model.type.UserType;
 import com.tuannq.authentication.security.CustomUserDetails;
 import com.tuannq.authentication.service.UserService;
 import com.tuannq.authentication.util.AuthUtils;
@@ -93,6 +95,11 @@ public class ManageUserController {
                     || Objects.equals(form.getRole(), identity.getRole())
             ) {
                 throw new BadRequestException(messageSource.getMessage("update.fail", null, LocaleContextHolder.getLocale()));
+            }
+            if (UserType.ADMIN.getRole().equalsIgnoreCase(identity.getRole())) {
+                if (!form.getStatus().equalsIgnoreCase(StatusType.CLOSED.name())) {
+                    throw new ArgumentException("status", "status.invalid");
+                }
             }
         }
 

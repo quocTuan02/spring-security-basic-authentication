@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    const  info = JSON.parse(decodeURIComponent(getCookie("info")));
+    const info = JSON.parse(decodeURIComponent(getCookie("info")));
 
     $("#modal-add-new-user").on("hidden.bs.modal", function () {
         $("#modal-add-new-user form")[0].reset();
@@ -40,6 +40,7 @@ $(document).ready(function () {
                 $('.modal').modal('hide');
                 $('.invalid-feedback').hide()
                 form[0].reset()
+                window.location.reload();
             },
             error: function (error) {
                 let data = error.responseJSON
@@ -124,15 +125,54 @@ $(document).ready(function () {
                             <div class=""><span class="invalid-feedback" id="invalid-feedback__role--edit"></span></div>
                         </div>
                         <div class="form-group">
-                            ${info.role === 'ADMIN' ? `
-                                <div class="">
-                                    <label class="required-label min-w-20 mr-1">Is deleted</label>
-                                    <div class="form-check form-check-inline">
-                                        <input name="isDeleted" value="true" ${data.data.isDeleted ? "checked" : ""}
-                                               id="isDeleted--edit" class="form-check-input" type="checkbox">
-                                    </div>
+                                <label class="required-label min-w-20 mr-1">Status</label>
+                                <div class="form-check form-check-inline">
+                                    <input name="status" value="OPEN" required 
+                                           ${data.data.status === "OPEN" ? "checked" : ""}
+                                           id="status-open--edit" class="form-check-input" type="radio">
+                                    <label class="form-check-label" for="status-open--edit">OPEN</label>
                                 </div>
-                            ` : ``}
+                                <div ${data.data.role === "ADMIN" ? '' : `style="pointer-events: none;color: #ccc;"`}
+                                    class="form-check form-check-inline">
+                                    <input name="status" value="CLOSED" required
+                                           ${data.data.status === "CLOSED" ? "checked" : ""}
+                                           id="status-closed--edit" class="form-check-input" type="radio">
+                                    <label class="form-check-label" for="status-closed--edit">CLOSED</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input name="status" value="RESOLVE" required
+                                           ${data.data.status === "RESOLVE" ? "checked" : ""}
+                                           id="status-resolve--edit" class="form-check-input" type="radio">
+                                    <label class="form-check-label" for="status-resolve--edit">RESOLVE</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input name="status" value="REOPEN" required
+                                           ${data.data.status === "REOPEN" ? "checked" : ""}
+                                           id="status-reopen--edit" class="form-check-input" type="radio">
+                                    <label class="form-check-label" for="status-reopen--edit">REOPEN</label>
+                                </div>
+                                <div class="">
+                                    <span class="invalid-feedback" id="invalid-feedback__status--edit"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="" for="note--edit">Note</label>
+                                <textarea name="note"
+                                          minlength="5" 
+                                          maxlength="511"
+                                          required type="text"
+                                          class="form-control" 
+                                          id="note--edit">${data.data.note || ''}</textarea>
+                                <span class="invalid-feedback" id="invalid-feedback__note--edit"></span>
+                            </div>
+                        <div class="form-group">
+                            <div class="">
+                                <label class="required-label min-w-20 mr-1">Is deleted</label>
+                                <div class="form-check form-check-inline">
+                                    <input name="isDeleted" value="true" ${data.data.isDeleted ? "checked" : ""}
+                                           id="isDeleted--edit" class="form-check-input" type="checkbox">
+                                </div>
+                            </div>
                             <div class='${data.data.createdBy == null ? "d-none" : ""}'><label data-id="${data.data.createdBy ? data.data.createdBy.id : ""}">Người tạo:</label> <samp>${data.data.createdBy ? data.data.createdBy.fullName : ""}</samp></div>
                             <div class=""><label>Thời gian tạo:</label> <samp>${data.data.createdAt}</samp></div>
                             <div class='${data.data.modifiedBy == null ? "d-none" : ""}'><label data-id="${data.data.modifiedBy ? data.data.modifiedBy.id : ""}">Cập nhật lần cuối bởi:</label> <samp>${data.data.modifiedBy ? data.data.modifiedBy.fullName : ""}</samp></div>
@@ -162,6 +202,7 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             success: function (data) {
                 toastr.success(data.message);
+                window.location.reload();
                 let count = $(`.list-user tr[data-id="${id}"] > td:nth-child(1)`).html()
                 $(`.list-user tr[data-id="${id}"]`).html(`
                     <td>${count}</td>

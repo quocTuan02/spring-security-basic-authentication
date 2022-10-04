@@ -59,30 +59,21 @@
                             <table class="table table-striped table-bordered table-hover">
                                 <thead>
                                 <tr class="heading">
-                                    <th></th>
-                                    <th width="8%">#ID</th>
+                                    <th style="width: 5%;"></th>
+                                    <th style="width: 5%;">#ID</th>
                                     <th class="text-capitalize text-nowrap thuy-sort-area"
-                                        width="20%" data-order="fullName">
+                                        style="width: 25%;" data-order="fullName">
                                         <span>Họ tên</span>
                                         <i class="fa fa-sort float-right" style="margin-top: 3px;"></i>
                                     </th>
                                     <th class="text-capitalize text-nowrap thuy-sort-area"
-                                        data-order="email" width="10%">
+                                         data-order="email">
                                         <span>email</span>
                                         <i class="fa fa-sort float-right" style="margin-top: 3px;"></i>
                                     </th>
-                                    <th class="text-capitalize text-nowrap thuy-sort-area"
-                                        data-order="phone" width="10%">
-                                        <span>SDT</span>
-                                        <i class="fa fa-sort float-right" style="margin-top: 3px;"></i>
-                                    </th>
-                                    <th class="text-capitalize text-nowrap thuy-sort-area"
-                                        data-order="phone" width="20%">
-                                        <span>   Địa chỉ</span>
-                                        <i class="fa fa-sort float-right" style="margin-top: 3px;"></i>
-                                    </th>
-                                    <th class="text-capitalize text-nowrap" width="10%">role</th>
-                                    <th></th>
+                                    <th class="text-capitalize text-nowrap" style="width: 10%;">role</th>
+                                    <th class="text-capitalize text-nowrap" style="width: 10%;">Status</th>
+                                    <th style="width: 10%;"></th>
                                 </tr>
                                 <tr class="heading-search">
                                     <th></th>
@@ -105,18 +96,6 @@
                                                aria-label="">
                                     </th>
                                     <th>
-                                        <input type="text" name="phone"
-                                               th:value="${formSearch.phone}"
-                                               class="form-control thuy-search-input"
-                                               aria-label="">
-                                    </th>
-                                    <th>
-                                        <input type="text" name="address"
-                                               th:value="${formSearch.address}"
-                                               class="form-control thuy-search-input"
-                                               aria-label="">
-                                    </th>
-                                    <th>
                                         <select name="role" class="form-control thuy-search-select" aria-label="">
                                             <option value="" th:selected="${formSearch.getRole == null}">Tất cả</option>
                                             <option th:if="${identity.role == 'ADMIN'}"
@@ -130,6 +109,27 @@
                                                 EMPLOYEE
                                             </option>
                                             <option value="USER" th:selected="${formSearch.getRole == 'USER'}">USER
+                                            </option>
+                                        </select>
+                                    </th>
+                                    <th>
+                                        <select name="status" class="form-control thuy-search-select" aria-label="">
+                                            <option value="" th:selected="${formSearch.status == null}">Tất cả</option>
+                                            <option value="OPEN"
+                                                    th:selected="${formSearch.status == 'OPEN'}">
+                                                OPEN
+                                            </option>
+                                            <option value="CLOSED"
+                                                    th:selected="${formSearch.status == 'CLOSED'}">
+                                                CLOSED
+                                            </option>
+                                            <option value="RESOLVE"
+                                                    th:selected="${formSearch.status == 'RESOLVE'}">
+                                                RESOLVE
+                                            </option>
+                                            <option value="REOPEN"
+                                                    th:selected="${formSearch.status == 'REOPEN'}">
+                                                REOPEN
                                             </option>
                                         </select>
                                     </th>
@@ -147,18 +147,19 @@
                                         <td th:unless="${user.isDeleted}" class="text-capitalize text-nowrap"
                                             th:data-id="${user.id}" th:text="${user.getFullName()}"></td>
                                         <td th:text="${user.getEmail()}"></td>
-                                        <td th:text="${user.getPhone()}"></td>
-                                        <td th:text="${user.getAddress()}"></td>
                                         <td th:if="${user.isDeleted}"
                                             class="is-deleted text-capitalize text-nowrap"
                                             th:text="${user.getRole()}"></td>
                                         <td th:unless="${user.isDeleted}" class="text-capitalize text-nowrap"
                                             th:text="${user.getRole()}"></td>
+                                        <td th:text="${user.status}"></td>
                                         <td class="text-right">
                                             <button type="button" class="btn btn-view-edit__user" th:data-id="${user.id}">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <button type="button" class="btn btn-confirm-delete__user" th:data-id="${user.id}">
+                                            <button th:if="${identity.role == 'ADMIN'}"
+                                                    type="button" class="btn btn-confirm-delete__user"
+                                                    th:data-id="${user.id}">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </td>
@@ -243,6 +244,43 @@
                             <div class="">
                                 <span class="invalid-feedback" id="invalid-feedback__role--new"></span>
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="required-label min-w-20 mr-1">Status</label>
+                            <div class="form-check form-check-inline">
+                                <input name="status" value="OPEN" required
+                                       id="status-open--new" class="form-check-input" type="radio">
+                                <label class="form-check-label" for="status-open--new">OPEN</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input name="status" value="CLOSED" required th:disabled="${identity.role != 'ADMIN'}"
+                                       id="status-closed--new" class="form-check-input" type="radio">
+                                <label class="form-check-label" for="status-closed--new">CLOSED</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input name="status" value="RESOLVE" required
+                                       id="status-resolve--new" class="form-check-input" type="radio">
+                                <label class="form-check-label" for="status-resolve--new">RESOLVE</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input name="status" value="REOPEN" required
+                                       id="status-reopen--new" class="form-check-input" type="radio">
+                                <label class="form-check-label" for="status-reopen--new">REOPEN</label>
+                            </div>
+                            <div class="">
+                                <span class="invalid-feedback" id="invalid-feedback__status--new"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="" for="note--new">Note</label>
+                            <textarea name="note"
+                                      minlength="5"
+                                      maxlength="511"
+                                      required type="text"
+                                      class="form-control"
+                                      id="note--new">
+                            </textarea>
+                            <span class="invalid-feedback" id="invalid-feedback__note--new"></span>
                         </div>
                     </form>
                 </div>

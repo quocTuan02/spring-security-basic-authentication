@@ -7,7 +7,9 @@ import com.tuannq.authentication.exception.NotFoundException;
 import com.tuannq.authentication.model.dto.UserDTO;
 import com.tuannq.authentication.model.request.*;
 import com.tuannq.authentication.model.response.PageResponse;
+import com.tuannq.authentication.model.type.StatusType;
 import com.tuannq.authentication.model.type.TransactionType;
+import com.tuannq.authentication.model.type.UserType;
 import com.tuannq.authentication.repository.OTPRepository;
 import com.tuannq.authentication.repository.UserRepository;
 import com.tuannq.authentication.service.MailService;
@@ -101,7 +103,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public Users addUserByAdmin(UserFormAdmin form) throws ArgumentException, MessagingException, UnsupportedEncodingException {
+    public Users addUserByAdmin(UserFormAdmin form) throws ArgumentException {
         if (Strings.isNotBlank(form.getPhone()) && userRepository.findByPhone(form.getPhone()) != null)
             throw new ArgumentException("phone", messageSource.getMessage("phone.exist", null, LocaleContextHolder.getLocale()));
         if (Strings.isNotBlank(form.getUsername()) && userRepository.findByUsername(form.getUsername()) != null)
@@ -111,8 +113,17 @@ public class UserServiceImpl implements UserService {
 
         String pwd = ConverterUtils.generateRandomPassword();
         Users user = new Users(form, passwordEncoder.encode(pwd));
+        var identity = authUtils.getUser().get();
+        if (!UserType.ADMIN.getRole().equalsIgnoreCase(identity.getRole())) {
+            if (form.getStatus().equalsIgnoreCase(StatusType.CLOSED.name())) {
+                throw new ArgumentException("status", "status.invalid");
+            }
+        }
+        if (Strings.isBlank(form.getStatus())) {
+            user.setStatus(StatusType.OPEN.name());
+        }
 
-        mailService.sendPassword(user.getEmail(), pwd);
+//        mailService.sendPassword(user.getEmail(), pwd);
         return userRepository.save(user);
     }
 
@@ -134,6 +145,16 @@ public class UserServiceImpl implements UserService {
             throw new ArgumentException("username", "username.exist");
 
         user.setUser(form);
+        var identity = authUtils.getUser().get();
+        if (!UserType.ADMIN.getRole().equalsIgnoreCase(identity.getRole())) {
+            if (form.getStatus().equalsIgnoreCase(StatusType.CLOSED.name())) {
+                throw new ArgumentException("status", "Vui lòng chuyển trạng thái qua khác CLOSED để ADMIN duyệt lại!");
+            }
+            if (user.getStatus().equalsIgnoreCase(StatusType.CLOSED.name())) {
+                user.setStatus(StatusType.REOPEN.name());
+            }
+        }
+
         return userRepository.save(user);
     }
 
@@ -165,6 +186,9 @@ public class UserServiceImpl implements UserService {
             throw new BadCredentialsException(messageSource.getMessage("info-login.incorrect", null, LocaleContextHolder.getLocale()));
 
 
+        if (!StatusType.CLOSED.name().equalsIgnoreCase(ue.getStatus())){
+            throw new BadCredentialsException("Tài khoản chưa được kích hoạt. Vui lòng liên hệ ADMIN");
+        }
         return authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         form.getUsername(),
@@ -175,7 +199,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<Users> findById(long id) {
-        return userRepository.findById(id);
+        var rs = userRepository.findById(id);
+
+        var identity = authUtils.getUser().get();
+        if (UserType.ADMIN.getRole().equalsIgnoreCase(identity.getRole())) {
+            return rs;
+        }
+        var c = rs.map(Users::getRole)
+                .map(a -> UserType.USER.getRole().equalsIgnoreCase(a))
+                .orElse(false);
+        if (c) {
+            return rs;
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -186,6 +222,7 @@ public class UserServiceImpl implements UserService {
             throw new ArgumentException("email", messageSource.getMessage("email.exist", null, LocaleContextHolder.getLocale()));
 
         Users user = new Users(form, passwordEncoder.encode(form.getPassword()));
+        user.setStatus(StatusType.OPEN.name());
         return userRepository.save(user);
     }
 

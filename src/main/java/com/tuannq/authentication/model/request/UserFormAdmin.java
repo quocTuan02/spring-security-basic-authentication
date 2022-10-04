@@ -2,6 +2,7 @@ package com.tuannq.authentication.model.request;
 
 import com.tuannq.authentication.annotation.Phone;
 import com.tuannq.authentication.annotation.Role;
+import com.tuannq.authentication.annotation.Status;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +10,6 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.validation.constraints.*;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -63,6 +63,15 @@ public class UserFormAdmin {
     )
     private String role;
 
+    @NotBlank(message = "not-null")
+    @Status
+    @ApiModelProperty(
+            example = "[OPEN]",
+            notes = "not-null",
+            required = true
+    )
+    private String status;
+
     @Size(max = 511, message = "size-5-511")
     @ApiModelProperty(
             example = "Thiệu Ngọc, Thiệu Hóa, Thanh Hóa.",
@@ -70,6 +79,14 @@ public class UserFormAdmin {
             required = true
     )
     private String address;
+
+    @Size(max = 511, message = "size-5-511")
+    @ApiModelProperty(
+            example = "Thiệu Ngọc, Thiệu Hóa, Thanh Hóa.",
+            notes = "not-null",
+            required = true
+    )
+    private String note;
 
     @ApiModelProperty(
             example = "false"

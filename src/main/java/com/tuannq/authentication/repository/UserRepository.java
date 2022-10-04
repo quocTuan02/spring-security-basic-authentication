@@ -40,6 +40,7 @@ public interface UserRepository extends JpaRepository<Users, Long> {
             "where (:#{#form.fullName} is null or :#{#form.fullName} = '' or lower(coalesce(x1.fullName, '') ) like lower(concat('%',:#{#form.fullName},'%'))) " +
             "and (:#{#form.email} is null or :#{#form.email} = '' or lower(coalesce(x1.email, '') ) like lower(concat('%',:#{#form.email},'%'))) " +
             "and (:#{#form.phone} is null or :#{#form.phone} = '' or lower(coalesce(x1.phone, '') ) like lower(concat('%',:#{#form.phone},'%'))) " +
+            "and (:#{#form.status} is null or :#{#form.status} = '' or lower(coalesce(x1.status, '') ) like lower(concat('%',:#{#form.status},'%'))) " +
             "and (:#{#form.address} is null or :#{#form.address} = '' or lower(coalesce(x1.address, '') ) like lower(concat('%',:#{#form.address},'%'))) " +
             "and (:#{#form.role} is null or :#{#form.role} = '' or lower(coalesce(x1.role, '') ) = lower(:#{#form.role})) " +
             "and (:#{#form.id} is null or :#{#form.id} = '' or concat(x1.id, '') = :#{#form.id} ) " +

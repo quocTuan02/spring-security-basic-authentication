@@ -1,6 +1,8 @@
 package com.tuannq.authentication;
 
+import com.tuannq.authentication.annotation.Status;
 import com.tuannq.authentication.entity.Users;
+import com.tuannq.authentication.model.type.StatusType;
 import com.tuannq.authentication.model.type.UserType;
 import com.tuannq.authentication.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,7 @@ public class Application {
     @PostConstruct
     public void init() {
         var user = userRepository.findExistByUsernameOrEmailIgnoreCase("demo");
-        if (user == null)
+        if (user == null) {
             userRepository.save(
                     new Users("demo",
                             "Demo",
@@ -32,7 +34,41 @@ public class Application {
                             passwordEncoder.encode("demo"),
                             "",
                             "",
-                            UserType.ADMIN.getRole()
-                    ));
+                            UserType.ADMIN.getRole(),
+                            StatusType.CLOSED.name()
+                    )
+            );
+        }
+
+        user = userRepository.findExistByUsernameOrEmailIgnoreCase("employee");
+        if (user == null) {
+            userRepository.save(
+                    new Users("employee",
+                            "employee",
+                            "employee@yopmai.com",
+                            passwordEncoder.encode("demo"),
+                            "",
+                            "",
+                            UserType.EMPLOYEE.getRole(),
+                            StatusType.CLOSED.name()
+                    )
+            );
+        }
+
+        user = userRepository.findExistByUsernameOrEmailIgnoreCase("user");
+        if (user == null) {
+            userRepository.save(
+                    new Users("user",
+                            "user",
+                            "user@yopmai.com",
+                            passwordEncoder.encode("demo"),
+                            "",
+                            "",
+                            UserType.USER.getRole(),
+                            StatusType.CLOSED.name()
+                    )
+            );
+        }
+
     }
 }

@@ -15,4 +15,5 @@ public class UserSearchForm extends SearchPage{
     private String phone;
     private String address;
     private String role;
+    private String status;
 }

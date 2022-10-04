@@ -3,8 +3,6 @@ package com.tuannq.authentication.model.dto;
 import com.tuannq.authentication.entity.Users;
 import lombok.*;
 
-import java.util.List;
-
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
@@ -18,6 +16,7 @@ public class UserDTO extends AbstractDTO {
     private String address;
 
     private String role;
+    private String status;
     public UserDTO(Users user) {
         super(
                 user.getId(),
@@ -33,5 +32,6 @@ public class UserDTO extends AbstractDTO {
         this.address = user.getAddress();
         this.username = user.getUsername();
         this.role = user.getRole();
+        this.status = user.getStatus();
     }
 }
