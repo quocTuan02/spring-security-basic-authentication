@@ -122,7 +122,7 @@ public class ManageUserController {
             @PathVariable long id
     ) {
         var identity = authUtils.getUser().get();
-        if (identity.getId() == id)
+        if (identity.getId() == id || !UserType.ADMIN.getRole().equalsIgnoreCase(identity.getRole()))
             return ResponseEntity.badRequest().body(new SuccessResponse<>(messageSource.getMessage("delete.fail", null, LocaleContextHolder.getLocale()), null));
 
         userService.deleteById(id);

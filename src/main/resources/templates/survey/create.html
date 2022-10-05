@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/layout/layout :: main-fragment(
+                                                ~{:: title},
+                                                'short-header',
+                                                'short-footer',
+                                                ~{:: #css-resources},
+                                                ~{:: #js-resources},
+                                                ~{:: #main-content}
+                                               )}">
+
+<head>
+    <title>Tạo khảo sát</title>
+
+    <th:block id="css-resources">
+        <link rel="stylesheet" type="text/css" th:href="@{/css/components/header.css}"/>
+        <link rel="stylesheet" type="text/css" th:href="@{/css/components/sidebar.css}"/>
+        <style>
+            .question {
+                border-bottom: 1px solid #f5f5f5;
+                margin-bottom: 20px;
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+<main id="main-content">
+    <!-- Main Sidebar Container -->
+    <th:block th:replace="~{fragment/sidebar :: sidebar}"></th:block>
+    <div class="content-wrap">
+        <div class="row mb-4">
+            <div class="col-12">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/survey}">Khảo sát</a></li>
+                    <li class="breadcrumb-item active">Tạo mới</li>
+                </ol>
+            </div>
+        </div>
+        <!-- Toolbar -->
+        <div class="d-sm-flex justify-content-sm-between mb-3">
+            <div class="">
+                <a role="button" class="btn btn-outline-secondary -w-fixed-small font-weight-bold" th:href="@{/survey}">
+                    <span class="fas fa-chevron-left" style="margin-right:0.5rem;"></span>
+                    <span>Trở về</span>
+                </a>
+            </div>
+            <div class="d-flex justify-content-between d-sm-block mt-3 mt-sm-0">
+                <button type="button" class="btn btn-outline-success -w-fixed-small font-weight-bold btn-add-survey"
+                        form="form-add-survey">
+                    Lưu
+                </button>
+            </div>
+        </div>
+        <!-- Main content -->
+        <form id="form-add-survey" class="row d-flex flex-row-reverse">
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <input name="surveyName"
+                                   required=""
+                                   type="text"
+                                   aria-label="Survey Name"
+                                   minlength="2" maxlength="255"
+                                   placeholder="Tên khảo sát"
+                                   class="form-control"
+                                   id="surveyName">
+                            <span class="invalid-feedback" id="invalid-feedback__surveyName"></span>
+                        </div>
+                        <div class="form-group mt-5">
+                            <div class="d-flex justify-content-between">
+                                <button type="button"
+                                        class="btn btn-secondary -w-fixed-small font-weight-bold btn-add-essay_questions">
+                                    Tự luận
+                                </button>
+                                <button type="button"
+                                        disabled
+                                        class="btn btn-secondary -w-fixed-small font-weight-bold btn-add-selection_question">
+                                    Trắc nghiệm
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="card" style="min-height: 300px;">
+                    <div id="survey-content" class="card-body">
+                        <span class="invalid-feedback" id="invalid-feedback__essayQuestions"></span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+
+<th:block id="js-resources">
+
+    <!-- AdminLTE App -->
+    <script th:src="@{/adminlte/dist/js/adminlte.js}"></script>
+    <script>
+        $(document).ready(function () {
+            const info = JSON.parse(decodeURIComponent(getCookie("info")));
+            $(document).on("click", ".btn-add-essay_questions", function (event) {
+                let count = $('.question.essay-questions').length
+                $('#survey-content').append(`
+                    <div class="question essay-questions">
+                        <div class="form-group">
+                            <textarea name="essayQuestions[]"
+                                      rows="3"
+                                      aria-label=""
+                                      placeholder="Câu hỏi"
+                                      class="form-control"></textarea>
+                            <span class="invalid-feedback" id="invalid-feedback__essayQuestions_${count}_"></span>
+                        </div>
+                    </div>
+                `)
+            });
+
+            $(document).on("click", ".btn-add-selection_question", function (event) {
+                $('#survey-content').append(`
+                        <div class="question">
+                            <div class="form-group">
+                                <input name="selection_question"
+                                       type="text"
+                                       aria-label=""
+                                       placeholder="Câu hỏi"
+                                       class="form-control"/>
+                                <span class="invalid-feedback"></span>
+                            </div>
+                            <div class="form-group answer">
+                                <ul class="pl-4">
+                                    <li>
+                                        <input name="selection_question"
+                                               type="text"
+                                               aria-label=""
+                                               placeholder="Đáp án"
+                                               class="form-control w-75 mb-1"/>
+                                    </li>
+                                    <li>
+                                        <input name="selection_question"
+                                               type="text"
+                                               aria-label=""
+                                               placeholder="Đáp án"
+                                               class="form-control w-75 mb-1"/>
+                                    </li>
+                                    <li>
+                                        <input name="selection_question"
+                                               type="text"
+                                               aria-label=""
+                                               placeholder="Đáp án"
+                                               class="form-control w-75 mb-1"/>
+                                    </li>
+                                    <li>
+                                        <input name="selection_question"
+                                               type="text"
+                                               aria-label=""
+                                               placeholder="Đáp án"
+                                               class="form-control w-75 mb-1"/>
+                                    </li>
+                                </ul>
+
+                            </div>
+                        </div>
+                `)
+            });
+
+            $(document).on("click", ".btn-add-survey", function (e) {
+                e.preventDefault();
+                const form = $(this.form)
+                $.ajax({
+                    url: '/api/survey',
+                    type: 'POST',
+                    data: JSON.stringify(getFormData(form)),
+                    processData: false,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        toastr.success(data.message);
+                        setTimeout(function () {
+                            window.location = "/survey"
+                        }, 500)
+                    },
+                    error: function (error) {
+                        let data = error.responseJSON
+                        if (data.errors instanceof Array) {
+                            toastr.error(data.message);
+                            $('.invalid-feedback').hide()
+                            $.map(data.errors, function (e) {
+                                let obj = $(`#invalid-feedback__${e.field.replaceAll(/[\[\].]/ig, "_")}`)
+                                obj.show();
+                                obj.text(e.message)
+                            })
+                        } else {
+                            toastr.error(error.responseText);
+                        }
+
+                    }
+                });
+            })
+        });
+    </script>
+
+</th:block>
+</body>
+</html>

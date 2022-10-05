@@ -1,5 +1,11 @@
 package com.tuannq.authentication.entity.survey;
 
+import com.tuannq.authentication.entity.core.BaseEntity;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,12 +14,11 @@ import java.util.List;
  * The type Questionnaire.
  */
 @Entity
-public class Questionnaire {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Questionnaire extends BaseEntity {
     private String name;
 
     private boolean isClosed;
@@ -23,13 +28,6 @@ public class Questionnaire {
             joinColumns = {@JoinColumn(name="questionnaire_id")},
             inverseJoinColumns = {@JoinColumn (name="question_id")})
     private List<Question> questionList = new ArrayList<>();
-
-    /**
-     * Instantiates a new Questionnaire.
-     */
-    public Questionnaire(){
-    }
-
     /**
      * Instantiates a new Questionnaire.
      *
@@ -48,78 +46,6 @@ public class Questionnaire {
     public Questionnaire(String name, List<Question> questionList){
         this.name = name;
         this.questionList = questionList;
-    }
-
-    /**
-     * Gets id.
-     *
-     * @return the id
-     */
-    public long getId() {
-        return id;
-    }
-
-    /**
-     * Sets id.
-     *
-     * @param id the id
-     */
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    /**
-     * Gets name.
-     *
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Sets name.
-     *
-     * @param name the name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Gets question list.
-     *
-     * @return the question list
-     */
-    public List<Question> getQuestionList() {
-        return questionList;
-    }
-
-    /**
-     * Sets question list.
-     *
-     * @param questionList the question list
-     */
-    public void setQuestionList(ArrayList<Question> questionList) {
-        this.questionList = questionList;
-    }
-
-    /**
-     * Is closed boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isClosed() {
-        return isClosed;
-    }
-
-    /**
-     * Sets closed.
-     *
-     * @param closed the closed
-     */
-    public void setClosed(boolean closed) {
-        isClosed = closed;
     }
 
     /**

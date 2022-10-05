@@ -1,22 +1,30 @@
 package com.tuannq.authentication.controller.anonymous;
 
 
+import com.tuannq.authentication.entity.Users;
 import com.tuannq.authentication.entity.survey.*;
+import com.tuannq.authentication.model.request.SurveyAddForm;
+import com.tuannq.authentication.model.request.SurveySearchForm;
+import com.tuannq.authentication.model.response.PageResponse;
+import com.tuannq.authentication.model.response.SuccessResponse;
 import com.tuannq.authentication.repository.survey.QuestionnaireRepository;
+import com.tuannq.authentication.util.AuthUtils;
+import com.tuannq.authentication.util.PageUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static com.tuannq.authentication.config.DefaultVariable.LIMIT;
 
 /**
  * This class controls pages that used to create questionnaires
@@ -25,10 +33,29 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SurveyorController {
     private final QuestionnaireRepository questionnaireRepository;
+    private final AuthUtils authUtils;
 
     @RequestMapping(path = "/create", method = RequestMethod.GET)
-    public String questionnaireCreateForm() {
+    public String questionnaireCreatesForm() {
         return "survey/qCreate";
+    }
+
+    @GetMapping("survey/create")
+    public String questionnaireCreateForm() {
+        return "survey/create";
+    }
+
+    @PostMapping("api/survey")
+    public ResponseEntity<?> addSurvey(@RequestBody @Validated SurveyAddForm form) {
+        var questionnaire = new Questionnaire();
+        questionnaire.setName(form.getSurveyName());
+        for (var question : form.getEssayQuestions()) {
+            OpenEnd q = new OpenEnd();
+            q.setQuestion(question);
+            questionnaire.addQuestion(q);
+        }
+        questionnaireRepository.save(questionnaire);
+        return ResponseEntity.ok(new SuccessResponse<>());
     }
 
 
@@ -203,6 +230,23 @@ public class SurveyorController {
         return "survey/Question";
     }
 
+    @GetMapping("survey")
+    public String surveys(
+            Model model,
+            SurveySearchForm form
+    ) {
+        var identity = authUtils.getUser().get();
+        var data = this.questionnaireRepository.findByCreatedBy(
+                identity,
+                form,
+                new PageUtil(form.getPage(), LIMIT, form.getOrder(), form.getDirection()).getPageRequest()
+        );
+        var surveys = new PageResponse<>(data);
+        model.addAttribute("surveys", surveys);
+        model.addAttribute("totalPages", surveys.getTotalPages());
+        model.addAttribute("currentPage", surveys.getCurrentPage());
+        return "survey/list";
+    }
 
     @GetMapping("allSurvey")
     public String showAllSurvey(Model model) {

@@ -23,7 +23,7 @@ public class HomeController {
             return null;
         }
 
-        httpResponse.sendRedirect("/account/profile");
+        httpResponse.sendRedirect("/survey");
         return null;
     }
 }

@@ -39,6 +39,31 @@
                         </ul>
                     </li>
                     <li class="nav-item has-treeview">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-star"></i>
+                            <div class="nav-text">
+                                <span>Khảo sát</span>
+                                <!-- <i class="fas fa-angle-left right"></i>-->
+                            </div>
+                        </a>
+                        <ul class="nav nav-treeview p">
+                            <li class="nav-item">
+                                <a th:href="@{/survey}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <span class="nav-text">Dánh sách khảo sát</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <ul class="nav nav-treeview p">
+                            <li class="nav-item">
+                                <a th:href="@{/survey/create}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <span class="nav-text">Tạo khảo sát</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item has-treeview">
                         <a th:href="@{/api/logout}" class="nav-link">
                             <i class="nav-icon  fas fa-sign-out-alt"></i>
                             <span class="nav-text">Đăng xuất</span>
