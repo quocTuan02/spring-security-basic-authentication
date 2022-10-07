@@ -1,6 +1,5 @@
 package com.tuannq.authentication;
 
-import com.tuannq.authentication.annotation.Status;
 import com.tuannq.authentication.entity.Users;
 import com.tuannq.authentication.model.type.StatusType;
 import com.tuannq.authentication.model.type.UserType;
@@ -11,7 +10,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
 
 @SpringBootApplication
 @RequiredArgsConstructor
