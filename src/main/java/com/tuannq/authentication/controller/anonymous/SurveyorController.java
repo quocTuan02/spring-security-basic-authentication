@@ -1,8 +1,8 @@
 package com.tuannq.authentication.controller.anonymous;
 
 
-import com.tuannq.authentication.entity.Users;
 import com.tuannq.authentication.entity.survey.*;
+import com.tuannq.authentication.exception.ArgumentException;
 import com.tuannq.authentication.model.request.SurveyAddForm;
 import com.tuannq.authentication.model.request.SurveySearchForm;
 import com.tuannq.authentication.model.response.PageResponse;
@@ -25,6 +25,8 @@ import java.io.PrintWriter;
 import java.util.*;
 
 import static com.tuannq.authentication.config.DefaultVariable.LIMIT;
+import static com.tuannq.authentication.util.ConverterUtils.isEmpty;
+import static com.tuannq.authentication.util.ConverterUtils.isNotEmpty;
 
 /**
  * This class controls pages that used to create questionnaires
@@ -47,20 +49,32 @@ public class SurveyorController {
 
     @PostMapping("api/survey")
     public ResponseEntity<?> addSurvey(@RequestBody @Validated SurveyAddForm form) {
+        if (isEmpty(form.getEssayQuestions()) && isEmpty(form.getMultipleChoiceQuestions())) {
+            throw new ArgumentException("essayQuestions", "not-null");
+        }
         var questionnaire = new Questionnaire();
         questionnaire.setName(form.getSurveyName());
-        for (var question : form.getEssayQuestions()) {
-            OpenEnd q = new OpenEnd();
-            q.setQuestion(question);
-            questionnaire.addQuestion(q);
+        if (isNotEmpty(form.getEssayQuestions())){
+            for (var question : form.getEssayQuestions()) {
+                var openEnd = new OpenEnd();
+                openEnd.setQuestion(question);
+                questionnaire.addQuestion(openEnd);
+            }
         }
+        if (isNotEmpty(form.getMultipleChoiceQuestions())){
+            for (var question : form.getMultipleChoiceQuestions()) {
+                var selection = new Selection(question.getName(), question.getAnswers());
+                questionnaire.addQuestion(selection);
+            }
+        }
+
         questionnaireRepository.save(questionnaire);
         return ResponseEntity.ok(new SuccessResponse<>());
     }
 
 
     @GetMapping("/view/{id}")
-    public String viewQuestionnaire(@PathVariable long id, Model model, Authentication authentication) {
+    public String viewQuestionnaire(@PathVariable long id, Model model) {
         var userSurveys = new ArrayList<Questionnaire>();
         Questionnaire questionnaire = this.questionnaireRepository.findById(id);
         if (userSurveys.contains(questionnaire)) {

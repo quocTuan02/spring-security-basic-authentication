@@ -14,7 +14,13 @@ public class SurveyAddForm {
     @NotBlank(message = "not-null")
     private String surveyName;
 
-    @NotNull(message = "not-null")
-    @Size(min = 1, message = "not-null")
     private List<@Valid @NotBlank(message = "not-null") String> essayQuestions = new ArrayList<>();
+
+    private List<@Valid @NotNull(message = "not-null") MultipleChoiceQuestion> multipleChoiceQuestions = new ArrayList<>();
+
+    @Data
+    public static class MultipleChoiceQuestion {
+        private String name;
+        private List<@Valid @NotBlank(message = "not-null") String> answers;
+    }
 }

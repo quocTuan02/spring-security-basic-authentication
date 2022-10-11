@@ -38,6 +38,13 @@ public class ConverterUtils {
         return DATE_TIME_FORMATTER.format(date);
     }
 
+    public static boolean isEmpty(List<?> list) {
+        return list == null || list.size() == 0;
+    }
+    public static boolean isNotEmpty(List<?> list) {
+        return !isEmpty(list);
+    }
+
     /**
      * format date string to date
      *
