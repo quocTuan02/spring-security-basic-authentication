@@ -3,6 +3,7 @@ package com.tuannq.authentication.controller.anonymous;
 
 import com.tuannq.authentication.entity.survey.*;
 import com.tuannq.authentication.exception.ArgumentException;
+import com.tuannq.authentication.model.request.DoSurvey;
 import com.tuannq.authentication.model.request.SurveyAddForm;
 import com.tuannq.authentication.model.request.SurveySearchForm;
 import com.tuannq.authentication.model.response.PageResponse;
@@ -47,6 +48,26 @@ public class SurveyorController {
         return "survey/create";
     }
 
+    @PostMapping("/survey/do/{id}")
+    public ResponseEntity<?> doSurvey(
+            @RequestBody @Validated DoSurvey form,
+            @PathVariable long id
+    ) {
+        Questionnaire questionnaire = this.questionnaireRepository.findById(id);
+        for (var question : questionnaire.getQuestionList()) {
+            for (var answer: form.getQuestion()) {
+                if (answer.getId() == question.getId()){
+                    question.addAnswer(answer.getAnswer());
+                    break;
+                };
+            }
+        }
+
+        questionnaireRepository.save(questionnaire);
+        return ResponseEntity.ok(new SuccessResponse<>());
+    }
+
+
     @PostMapping("api/survey")
     public ResponseEntity<?> addSurvey(@RequestBody @Validated SurveyAddForm form) {
         if (isEmpty(form.getEssayQuestions()) && isEmpty(form.getMultipleChoiceQuestions())) {
@@ -54,6 +75,10 @@ public class SurveyorController {
         }
         var questionnaire = new Questionnaire();
         questionnaire.setName(form.getSurveyName());
+        questionnaire.setPublic(form.isPublic());
+        questionnaire.setStartTime(form.getStartTime());
+        questionnaire.setEndTime(form.getEndTime());
+
         if (isNotEmpty(form.getEssayQuestions())){
             for (var question : form.getEssayQuestions()) {
                 var openEnd = new OpenEnd();
@@ -75,20 +100,7 @@ public class SurveyorController {
 
     @GetMapping("/view/{id}")
     public String viewQuestionnaire(@PathVariable long id, Model model) {
-        var userSurveys = new ArrayList<Questionnaire>();
         Questionnaire questionnaire = this.questionnaireRepository.findById(id);
-        if (userSurveys.contains(questionnaire)) {
-            model.addAttribute("error", "Sorry, you cannot do your own survey ID : " + id + ". Try other surveys later.");
-            return "survey/errorRedirect";
-        }
-        if (questionnaire == null) {
-            model.addAttribute("error", "The survey " + id + " does not exist, try another id later.");
-            return "survey/errorRedirect";
-        }
-        if (questionnaire.isClosed()) {
-            model.addAttribute("error", "The survey is closed, try another id later.");
-            return "survey/errorRedirect";
-        }
         model.addAttribute("questionnaire", questionnaire);
         List<Long> openEndIdList = new ArrayList<>();
         List<Long> rangeIdList = new ArrayList<>();
@@ -105,7 +117,7 @@ public class SurveyorController {
         model.addAttribute("openEndList", openEndIdList);
         model.addAttribute("rangeList", rangeIdList);
         model.addAttribute("selectionList", selectionIdList);
-        return "survey/doSurvey";
+        return "survey/aaa";
     }
 
     @PostMapping("/view/{id}")

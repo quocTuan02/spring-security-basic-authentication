@@ -17,8 +17,35 @@
         <link rel="stylesheet" type="text/css" th:href="@{/css/components/sidebar.css}"/>
         <style>
             .question {
-                border-bottom: 1px solid #f5f5f5;
-                margin-bottom: 20px;
+                border-bottom: 1px solid #f3f3f3;
+                padding: 5px 0 15px 0;
+                margin-left: 15px;
+                margin-bottom: 10px;
+            }
+
+            .question .question-container {
+                width: calc(100% - 30px)
+            }
+
+            .question .help-inline.btn-delete-question,
+            .answer .help-inline.btn-delete-answer {
+                display: none;
+            }
+
+            .question:hover .help-inline.btn-delete-question,
+            .answer:hover .help-inline.btn-delete-answer {
+                display: block;
+                padding: 0 6px;
+                margin-left: 10px;
+                cursor: pointer;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+            }
+
+            .question:hover .help-inline.btn-delete-question:hover,
+            .answer:hover .help-inline.btn-delete-answer:hover {
+                background: #ccc;
             }
         </style>
     </th:block>
@@ -28,7 +55,7 @@
     <!-- Main Sidebar Container -->
     <th:block th:replace="~{fragment/sidebar :: sidebar}"></th:block>
     <div class="content-wrap">
-        <div class="row mb-4">
+        <div class="row mb-2">
             <div class="col-12">
                 <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a th:href="@{/survey}">Khảo sát</a></li>
@@ -52,8 +79,8 @@
             </div>
         </div>
         <!-- Main content -->
-        <form id="form-add-survey" class="row d-flex flex-row-reverse">
-            <div class="col-4">
+        <form id="form-add-survey" class="row d-xl-flex flex-xl-row-reverse">
+            <div class="col-xl-4">
                 <div class="card">
                     <div class="card-body">
                         <div class="form-group mb-3">
@@ -67,26 +94,57 @@
                                    id="surveyName">
                             <span class="invalid-feedback" id="invalid-feedback__surveyName"></span>
                         </div>
-                        <div class="form-group mt-5">
-                            <div class="d-flex justify-content-between">
-                                <button type="button"
-                                        class="btn btn-secondary -w-fixed-small font-weight-bold btn-add-essay_questions">
-                                    Tự luận
-                                </button>
-                                <button type="button"
-                                        class="btn btn-secondary -w-fixed-small font-weight-bold btn-add-multiple-choice-questions">
-                                    Trắc nghiệm
-                                </button>
+                        <div class="d-flex justify-content-between align-content-center d-xl-block">
+                            <div class="form-group mb-3">
+                                <label class="" for="startTime">Thời gian bắt đầu</label>
+                                <input name="startTime" required
+                                       placeholder="Thời gian bắt đầu"
+                                       type="datetime-local" minlength="2" maxlength="255"
+                                       class="form-control" id="startTime">
+                                <span class="invalid-feedback" id="invalid-feedback__startTime"></span>
                             </div>
+                            <div class="form-group mb-3">
+                                <label class="" for="endTime">Thời gian kết thúc</label>
+                                <input name="endTime" required
+                                       placeholder="Thời gian kết thúc"
+                                       type="datetime-local" minlength="2" maxlength="255"
+                                       class="form-control" id="endTime">
+                                <span class="invalid-feedback" id="invalid-feedback__endTime"></span>
+                            </div>
+                        </div>
+                        <div class="form-group d-flex align-content-center">
+                            <label class="m-0 mr-3" for="isPublic">Công khai</label>
+                            <div class="form-check form-check-inline">
+                                <input name="isPublic"
+                                       value="false"
+                                       id="isPublic"
+                                       class="form-check-input"
+                                       type="checkbox">
+                            </div>
+                            <span class="invalid-feedback" id="invalid-feedback__isPublic"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body my-3">
+                        <div class="d-flex justify-content-between align-content-center">
+                            <button type="button"
+                                    class="btn btn-secondary -w-fixed-small font-weight-bold btn-add-essay_questions">
+                                Tự luận
+                            </button>
+                            <button type="button"
+                                    class="btn btn-secondary -w-fixed-small font-weight-bold btn-add-multiple-choice-questions">
+                                Trắc nghiệm
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-8">
-                <div class="card" style="min-height: 300px;">
-                    <div id="survey-content" class="card-body">
-                        <span class="invalid-feedback" id="invalid-feedback__essayQuestions"></span>
-                    </div>
+            <div class="col-xl-8">
+                <div class="card" style="min-height: 340px; max-height: 748px; overflow: auto;">
+                    <span class="invalid-feedback p-4" id="invalid-feedback__essayQuestions"></span>
+                    <ol id="survey-content" class="card-body">
+                    </ol>
                 </div>
             </div>
         </form>
@@ -99,56 +157,128 @@
     <script th:src="@{/adminlte/dist/js/adminlte.js}"></script>
     <script>
         $(document).ready(function () {
-            const info = JSON.parse(decodeURIComponent(getCookie("info")));
             $(document).on("click", ".btn-add-essay_questions", function (event) {
                 let count = $('.question.essay-questions').length
                 $('#survey-content').append(`
-                    <div class="question essay-questions">
-                        <div class="form-group">
-                            <textarea name="essayQuestions[]"
-                                      rows="3"
-                                      aria-label=""
-                                      placeholder="Câu hỏi"
-                                      class="form-control"></textarea>
-                            <span class="invalid-feedback" id="invalid-feedback__essayQuestions_${count}_"></span>
+                    <li class="question essay-questions" data-id="${count}">
+                        <div class="d-flex">
+                             <div class="question-container">
+                                <textarea name="essayQuestions[]"
+                                          rows="3"
+                                          aria-label=""
+                                          placeholder="Câu hỏi"
+                                          class="form-control"></textarea>
+                                <span class="invalid-feedback" id="invalid-feedback__essayQuestions_${count}_"></span>
+                            </div>
+                            <div class="help-inline btn-delete-question">
+                                <i class="fas fa-times text-secondary"></i>
+                            </div>
                         </div>
-                    </div>
+                    </li>
                 `)
             });
 
             $(document).on("click", ".btn-add-multiple-choice-questions", function (event) {
                 let count = $('.question.multiple-choice-questions').length
                 $('#survey-content').append(`
-                        <div class="question multiple-choice-questions" data-id="${count}">
-                            <div class="form-group">
-                                <input name="multipleChoiceQuestions[${count}].name"
-                                       type="text"
-                                       aria-label=""
-                                       placeholder="Câu hỏi"
-                                       class="form-control"/>
-                                <span class="invalid-feedback" id="invalid-feedback__multipleChoiceQuestions_${count}__name"></span>
+                        <li class="question multiple-choice-questions" data-id="${count}">
+                            <div class="d-flex">
+                                <div class="question-container">
+                                    <div class="form-group">
+                                        <input name="multipleChoiceQuestions[${count}].name"
+                                               type="text"
+                                               aria-label=""
+                                               placeholder="Câu hỏi"
+                                               class="form-control"/>
+                                        <span class="invalid-feedback" id="invalid-feedback__multipleChoiceQuestions_${count}__name"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <ul class="answers pl-4">
+                                            <li class="answer" data-id="0">
+                                                <div class="d-flex align-items-center">
+                                                    <input name="multipleChoiceQuestions[${count}].answers[]"
+                                                           type="text"
+                                                           aria-label=""
+                                                           placeholder="Đáp án"
+                                                           class="form-control w-75 mb-1"/>
+                                                    <div class="rounded-circle help-inline btn-delete-answer">
+                                                        <i class="fas fa-times text-secondary"></i>
+                                                    </div>
+                                                </div>
+                                                <span class="invalid-feedback" id="invalid-feedback__multipleChoiceQuestions_${count}__answers_0_"></span>
+                                            </li>
+                                        </ul>
+                                        <button type="button" class="btn btn-outline-secondary btn-add-answers">add answers</button>
+                                    </div>
+                                </div>
+                                <div class="rounded-circle help-inline btn-delete-question">
+                                    <i class="fas fa-times text-secondary"></i>
+                                </div>
                             </div>
-                            <div class="form-group answer">
-                                <ul class="pl-4">
-                                    <li>
-                                        <div class="d-flex align-items-center">
-                                            <input name="multipleChoiceQuestions[${count}].answers[]"
-                                                   type="text"
-                                                   aria-label=""
-                                                   placeholder="Đáp án"
-                                                   class="form-control w-75 mb-1"/>
-                                            <div class="px-4 help-inline">
-<!--                                                <i class="fas fa-times text-secondary"></i>-->
-                                            </div>
-                                        </div>
-                                        <span class="invalid-feedback" id="invalid-feedback__multipleChoiceQuestions_${count}__answers_0_"></span>
-                                    </li>
-                                </ul>
-                                <div>add</div>
-                            </div>
-                        </div>
+                        </li>
                 `)
             });
+
+            $(document).on("click", ".btn-add-answers", function (e) {
+                let multipleChoiceQuestions_id = $(this).parents(".multiple-choice-questions").data("id");
+                let ul = $(`.question.multiple-choice-questions[data-id="${multipleChoiceQuestions_id}"] ul`)
+                let count_li = ul.find('li.answer').length;
+                ul.append(`
+                    <li class="answer" data-id="${count_li}">
+                        <div class="d-flex align-items-center">
+                            <input name="multipleChoiceQuestions[${multipleChoiceQuestions_id}].answers[]"
+                                   type="text"
+                                   aria-label=""
+                                   placeholder="Đáp án"
+                                   class="form-control w-75 mb-1"/>
+                            <div class="help-inline btn-delete-answer">
+                                <i class="fas fa-times text-secondary"></i>
+                            </div>
+                        </div>
+                        <span class="invalid-feedback" id="invalid-feedback__multipleChoiceQuestions_${multipleChoiceQuestions_id}__answers_${count_li}_"></span>
+                    </li>
+                `)
+            })
+
+            $(document).on("click", ".btn-delete-answer", function (e) {
+                let question = $(this).parents('.multiple-choice-questions');
+                let question_id = question.data("id")
+                $(this).parents("li.answer").remove()
+                let answers = $(question[0]).find('li.answer');
+                for (let index = 0; index < answers.length; index++) {
+                    let obj = $(answers[index]);
+                    obj.data("id", index);
+                    obj.attr("data-id", index);
+                    obj.find('.invalid-feedback').attr("id", `invalid-feedback__multipleChoiceQuestions_${question_id}__answers_${index}_`)
+                }
+            })
+
+            $(document).on("click", ".btn-delete-question", function (e) {
+                $(this).parents("li.question").remove();
+                let multiple_choice_questions = $('#survey-content li.question.multiple-choice-questions');
+                for (let index = 0; index < multiple_choice_questions.length; index++) {
+                    let obj = $(multiple_choice_questions[index]);
+                    let id_old = obj.data("id");
+                    obj.data("id", index);
+                    obj.attr("data-id", index);
+                    $(`#invalid-feedback__multipleChoiceQuestions_${id_old}__name`).attr("id", `invalid-feedback__multipleChoiceQuestions_${index}__name`)
+                    let answers = obj.find('.answer .invalid-feedback');
+                    for (let i = 0; i < answers.length; i++) {
+                        let obj = $(answers[i]);
+                        obj.data("id", i);
+                        obj.attr("data-id", i);
+                        obj.find('.invalid-feedback').attr("id", `invalid-feedback__multipleChoiceQuestions_${index}__answers_${i}_`)
+                    }
+                }
+                let essay_questions = $('#survey-content li.question.essay-questions');
+                for (let index = 0; index < essay_questions.length; index++) {
+                    let obj = $(essay_questions[index]);
+                    let id_old = obj.data("id");
+                    obj.data("id", index);
+                    obj.attr("data-id", index);
+                    $(`#invalid-feedback__essayQuestions_${id_old}_`).attr("id", `invalid-feedback__essayQuestions_${index}_`)
+                }
+            })
 
             $(document).on("click", ".btn-add-survey", function (e) {
                 e.preventDefault();

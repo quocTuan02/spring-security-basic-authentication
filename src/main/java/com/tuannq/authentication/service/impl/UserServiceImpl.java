@@ -165,11 +165,15 @@ public class UserServiceImpl implements UserService {
         if (Strings.isNotBlank(form.getPhone())) {
             u1 = userRepository.findByPhone(form.getPhone());
         }
+
         if (u1 != null && !u1.getId().equals(user.getId()))
             throw new ArgumentException("phone", messageSource.getMessage("phone.exist", null, LocaleContextHolder.getLocale()));
         Users u2 = userRepository.findByEmailIgnoreCase(form.getEmail());
         if (u2 != null && !u2.getId().equals(user.getId()))
             throw new ArgumentException("email", messageSource.getMessage("email.exist", null, LocaleContextHolder.getLocale()));
+        Users u3 = userRepository.findByUsername(form.getUsername());
+        if (u3 != null && !u3.getId().equals(user.getId()))
+            throw new ArgumentException("username", "username.exist");
 
         user.setUser(form);
         return userRepository.save(user);

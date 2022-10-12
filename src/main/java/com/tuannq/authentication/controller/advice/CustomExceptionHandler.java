@@ -1,28 +1,38 @@
 package com.tuannq.authentication.controller.advice;
 
-import com.tuannq.authentication.exception.*;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.tuannq.authentication.exception.ArgumentException;
+import com.tuannq.authentication.exception.BadRequestException;
+import com.tuannq.authentication.exception.DuplicateRecordException;
+import com.tuannq.authentication.exception.NotFoundException;
 import com.tuannq.authentication.model.response.ErrorsResponse;
 import com.tuannq.authentication.model.response.data.MethodArgumentNotValidResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
+@Slf4j
 public class CustomExceptionHandler {
     private final MessageSource messageSource;
 
@@ -32,13 +42,13 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorsResponse<String>> handlerNotFoundException(NotFoundException ex, WebRequest req) {
+    public ResponseEntity<ErrorsResponse<String>> handlerNotFoundException(NotFoundException ex) {
         // Log err
         ex.printStackTrace();
 
         try {
             var errorMessage = messageSource.getMessage(ex.getMessage(), null, LocaleContextHolder.getLocale());
-            var response =new ErrorsResponse<>(HttpStatus.NOT_FOUND.name(), errorMessage);
+            var response = new ErrorsResponse<>(HttpStatus.NOT_FOUND.name(), errorMessage);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         } catch (Exception exception) {
             ErrorsResponse<String> err = new ErrorsResponse<>(HttpStatus.NOT_FOUND.name(), ex.getMessage());
@@ -47,13 +57,13 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<?> handlerBadRequestException(BadRequestException ex, WebRequest req) {
+    public ResponseEntity<?> handlerBadRequestException(BadRequestException ex) {
         // Log err
         ex.printStackTrace();
 
         try {
             var errorMessage = messageSource.getMessage(ex.getMessage(), null, LocaleContextHolder.getLocale());
-            var response =new ErrorsResponse<>(HttpStatus.BAD_REQUEST.name(), errorMessage);
+            var response = new ErrorsResponse<>(HttpStatus.BAD_REQUEST.name(), errorMessage);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } catch (Exception exception) {
             ErrorsResponse<String> err = new ErrorsResponse<>(HttpStatus.BAD_REQUEST.name(), ex.getMessage());
@@ -62,7 +72,7 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(DuplicateRecordException.class)
-    public ResponseEntity<?> handlerDuplicateRecordException(DuplicateRecordException ex, WebRequest req) {
+    public ResponseEntity<?> handlerDuplicateRecordException(DuplicateRecordException ex) {
         // Log err
 
         ErrorsResponse<String> err = new ErrorsResponse<>(HttpStatus.BAD_REQUEST.name(), ex.getMessage());
@@ -71,7 +81,7 @@ public class CustomExceptionHandler {
 
     // Xử lý tất cả các exception chưa được khai báo
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handlerException(Exception ex, WebRequest req) {
+    public ResponseEntity<?> handlerException(Exception ex) {
         // Log err
         ex.printStackTrace();
 
@@ -83,8 +93,7 @@ public class CustomExceptionHandler {
     public ResponseEntity<?> handlerUnsupportedOperationException(
             UnsupportedOperationException ex,
             HttpServletRequest httpServletRequest,
-            HttpServletResponse httpServletResponse,
-            WebRequest req
+            HttpServletResponse httpServletResponse
     ) throws IOException {
         if (httpServletRequest.getQueryString().contains("=") && !httpServletRequest.getRequestURI().contains("api")) {
             httpServletResponse.sendRedirect(httpServletRequest.getRequestURI());
@@ -141,6 +150,96 @@ public class CustomExceptionHandler {
             var response = new ErrorsResponse<>(message, List.of(new MethodArgumentNotValidResponse(ex.getField(), ex.getMessage())));
             return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @ExceptionHandler(value = {MethodArgumentTypeMismatchException.class})
+    protected ResponseEntity<?> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException exception) {
+        var message = messageSource.getMessage("bad-request", null, LocaleContextHolder.getLocale());
+        String errorCodeMessage;
+
+        var requiredType = exception.getRequiredType();
+        if (requiredType != null) {
+            switch (requiredType.getName()) {
+                case "java.time.Instant":
+                    errorCodeMessage = "time.invalid";
+                    break;
+                case "java.lang.Long":
+                case "java.lang.Integer":
+                    errorCodeMessage = "number.invalid";
+                    break;
+                default:
+                    errorCodeMessage = exception.getLocalizedMessage();
+            }
+        } else {
+            errorCodeMessage = exception.getLocalizedMessage();
+        }
+
+        ErrorsResponse<List<MethodArgumentNotValidResponse>> response;
+        try {
+            var errorMessage = messageSource.getMessage(errorCodeMessage, null, LocaleContextHolder.getLocale());
+            response = new ErrorsResponse<>(message, List.of(new MethodArgumentNotValidResponse(exception.getName(), errorMessage)));
+        } catch (Exception ex) {
+            response = new ErrorsResponse<>(message, List.of(new MethodArgumentNotValidResponse(exception.getName(), errorCodeMessage)));
+        }
+        return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {HttpMessageNotReadableException.class})
+    protected ResponseEntity<Object> handleHttpMessageNotReadableException(HttpMessageNotReadableException exception) {
+        var message = messageSource.getMessage("bad-request", null, LocaleContextHolder.getLocale());
+        if (exception.getCause() instanceof JsonMappingException) {
+            var jsonMappingException = ((JsonMappingException) exception.getCause());
+            var errorMessage = "";
+            var fieldName = new StringBuilder();
+            for (var path : jsonMappingException.getPath()) {
+                if (path.getIndex() == -1) {
+                    if (path.getFieldName() == null) {
+                        continue;
+                    }
+                    if (fieldName.length() == 0) {
+                        fieldName.append(path.getFieldName());
+                    } else {
+                        fieldName.append(".").append(path.getFieldName());
+                    }
+                } else {
+                    fieldName.append("[").append(path.getIndex()).append("]");
+                }
+            }
+            var errorCodeMessage = exception.getLocalizedMessage();
+            if (jsonMappingException instanceof MismatchedInputException) {
+                var mismatchedInputException = ((MismatchedInputException) jsonMappingException);
+                switch (mismatchedInputException.getTargetType().getName()) {
+                    case "java.time.Instant":
+                        errorCodeMessage = "time.invalid";
+                        break;
+                    case "java.lang.Long":
+                    case "java.lang.Integer":
+                        errorCodeMessage = "number.invalid";
+                        break;
+                    case "java.util.ArrayList":
+                        errorCodeMessage = "list.invalid";
+                        break;
+                    default: {
+                        log.warn(exception.getMessage(), exception);
+                        errorCodeMessage = "object.invalid";
+                    }
+                }
+            }
+            try {
+                errorMessage = messageSource.getMessage(errorCodeMessage, null, LocaleContextHolder.getLocale());
+            } catch (Exception ex) {
+                errorMessage = errorCodeMessage;
+            }
+            var response = new ErrorsResponse<>(message, List.of(new MethodArgumentNotValidResponse(fieldName.toString(), errorMessage)));
+
+            return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+        }
+        log.error(exception.getMessage(), exception);
+        var response = new ErrorsResponse<>(
+                HttpStatus.BAD_REQUEST.name(),
+                null
+        );
+        return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
 

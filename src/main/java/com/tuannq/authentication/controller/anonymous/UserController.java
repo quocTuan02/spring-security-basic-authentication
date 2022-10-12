@@ -2,7 +2,8 @@ package com.tuannq.authentication.controller.anonymous;
 
 import com.tuannq.authentication.exception.ArgumentException;
 import com.tuannq.authentication.model.dto.UserDTO;
-import com.tuannq.authentication.model.request.*;
+import com.tuannq.authentication.model.request.ChangePasswordForm;
+import com.tuannq.authentication.model.request.UpdateProfileForm;
 import com.tuannq.authentication.model.response.SuccessResponse;
 import com.tuannq.authentication.security.CustomUserDetails;
 import com.tuannq.authentication.service.UserService;
@@ -11,10 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -25,9 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
-import java.util.Optional;
 
 
 @Controller
@@ -103,17 +100,9 @@ public class UserController {
 
     @GetMapping("/account/change-password")
     public String changePassword(
-            Model model,
             HttpServletResponse httpResponse
     ) throws IOException {
-        var userOpt = Optional.ofNullable(SecurityContextHolder.getContext())
-                .map(SecurityContext::getAuthentication)
-                .map(Authentication::getPrincipal)
-                .map(u -> {
-                    if (u instanceof CustomUserDetails)
-                        return ((CustomUserDetails) u).getUser();
-                    else return null;
-                });
+        var userOpt = authUtils.getUser();
         if (userOpt.isEmpty()) {
             httpResponse.sendRedirect("/login");
             return null;

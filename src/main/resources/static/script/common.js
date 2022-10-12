@@ -1,33 +1,58 @@
-function getFormData($form) {
-    let data_form = $form.serializeArray();
-    let indexed_array = {};
-    let temp_array = {}
 
-    $.map(data_form, function (n, i) {
-        if (n['name'].endsWith('[]')) {
-            if (indexed_array[n['name'].replace('[]', '')]) {
-                indexed_array[n['name'].replace('[]', '')] = [...indexed_array[n['name'].replace('[]', '')], n['value']]
-            } else
-                indexed_array[n['name'].replace('[]', '')] = [n['value']]
-        } else if (n['name'].split(".").length === 2) {
-            let arr = n['name'].split(".")
+function isNumeric(value) {
+    return /^-?\d+$/.test(value);
+}
 
-            if (temp_array[arr[0]])
-                temp_array[arr[0]][`${arr[1]}`] = n['value']
-            else
-                temp_array[arr[0]] = JSON.parse(`{"${arr[1]}": "${n['value']}"}`)
-        } else
-            indexed_array[n['name']] = n['value'];
+function isObject(obj) {
+    return obj !== null && typeof obj === 'object' && !Array.isArray(obj)
+}
+
+function onlyNumbers(array) {
+    return array.every(element => {
+        return isNumeric(element);
+    });
+}
+
+function formatObject(obj) {
+    if (isObject(obj)) {
+        let rs = {};
+        const c = onlyNumbers(Object.keys(obj));
+        Object.entries(obj).forEach(([field, value]) => {
+            if (c) {
+                if (!Array.isArray(rs)) {
+                    rs = [];
+                }
+                rs.push(formatObject(value))
+            } else rs[field] = formatObject(value)
+        })
+        return rs;
+    }
+    return obj;
+}
+
+$.fn.getForm2obj = function () {
+    const _ = {};
+    $.map(this.serializeArray(), function (n) {
+        const keys = n.name.match(/[a-zA-Z0-9_]+|(?=\[])/g);
+        if (keys.length > 1) {
+            let tmp = _;
+            let pop = keys.pop();
+            for (let i = 0; i < keys.length, j = keys[i]; i++) {
+                tmp[j] = (!tmp[j] ? (pop === '') ? [] : {} : tmp[j]), tmp = tmp[j];
+            }
+            if (pop === '') {
+                tmp = (!Array.isArray(tmp) ? [] : tmp), tmp.push(n.value);
+            } else tmp[pop] = n.value;
+        } else {
+            _[keys.pop()] = n.value;
+        }
     });
 
-    Object.keys(temp_array).forEach(n => {
-        let field = n.replace(/\[\d]/i, "")
-        if (indexed_array[field])
-            indexed_array[field] = [...indexed_array[field], temp_array[n]]
-        else indexed_array[field] = [temp_array[n]]
-    })
+    return formatObject(_);
+}
 
-    return indexed_array;
+function getFormData($form) {
+    return $form.getForm2obj()
 }
 
 function getCookie(name) {

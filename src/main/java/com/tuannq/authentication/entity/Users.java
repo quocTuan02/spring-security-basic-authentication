@@ -85,6 +85,7 @@ public class Users extends BaseEntity {
         this.email = form.getEmail();
         this.phone = form.getPhone();
         this.address = form.getAddress();
+        this.username = form.getUsername();
     }
 
     public Users(UserFormAdmin form, String password) {
